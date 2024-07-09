@@ -1,8 +1,7 @@
-package com.example.wecli
+package com.example.wecli.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,9 +13,12 @@ class SplashScreenViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            delay(3000)
-            _splashShowValue.value = false
+            _splashShowValue.value = true
         }
+    }
+
+    fun updateSplashShowValue(value: Boolean) {
+        _splashShowValue.value = value
     }
 
 }
