@@ -64,6 +64,8 @@ dependencies {
     implementation(libs.koin.core)
     implementation (libs.koin.androidx.compose)
     implementation(libs.androidx.core.splashscreen)
+    implementation (libs.gms.play.services.location)
+    implementation(libs.androidx.lifecycle.runtime.compose.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
