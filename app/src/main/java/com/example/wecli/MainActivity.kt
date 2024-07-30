@@ -3,7 +3,9 @@ package com.example.wecli
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.wecli.ui.screens.WeatherScreen
 import com.example.wecli.ui.theme.WecliTheme
 import com.example.wecli.ui.viewmodel.WeatherViewModel
@@ -20,7 +22,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             WecliTheme {
                 val viewModel: WeatherViewModel = koinViewModel()
-                WeatherScreen(fusedLocationClient, viewModel)
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                WeatherScreen(fusedLocationClient, viewModel, uiState)
             }
         }
     }

@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.example.wecli.ui.state.WeatherUiState
 import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -32,12 +33,14 @@ import com.google.android.gms.tasks.CancellationTokenSource
 @Composable
 fun WeatherScreen(
     fusedLocationClient: FusedLocationProviderClient,
-    viewModel: WeatherViewModel
+    viewModel: WeatherViewModel,
+    uiState: WeatherUiState
 ) {
     val context = LocalContext.current
     val showPermissionRequest = remember { mutableStateOf(false) }
     RequestPermission(context, showPermissionRequest, fusedLocationClient, viewModel)
     ShowDialog(showPermissionRequest, context)
+    Log.d("Response", "WeatherScreen: $uiState")
     Column {
         Text("Ola")
     }
