@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.secrets.plugin.id)
+    kotlin("plugin.serialization") version "1.9.23"
 }
 
 android {
@@ -63,6 +64,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.koin.core)
     implementation (libs.koin.androidx.compose)
+    implementation (libs.ktor.client.android)
+    implementation (libs.ktor.client.logging)
+    implementation (libs.ktor.client.content.negotiation)
+    implementation (libs.ktor.serialization.kotlinx.json)
     implementation(libs.androidx.core.splashscreen)
     implementation (libs.gms.play.services.location)
     implementation(libs.androidx.lifecycle.runtime.compose.android)

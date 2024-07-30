@@ -3,6 +3,7 @@ package com.example.wecli.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Clouds(
-    val all: Int? = null
+data class Coord(
+    val lon: Double? = null,
+    val lat: Double? = null
 )

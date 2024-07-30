@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.wecli.ui.screens.WeatherScreen
 import com.example.wecli.ui.theme.WecliTheme
+import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -17,7 +19,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         setContent {
             WecliTheme {
-                WeatherScreen(fusedLocationClient)
+                val viewModel: WeatherViewModel = koinViewModel()
+                WeatherScreen(fusedLocationClient, viewModel)
             }
         }
     }
