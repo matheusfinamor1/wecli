@@ -1,9 +1,9 @@
 package com.example.wecli.ui.state
 
 data class WeatherUiState(
-    val main: String = "",
-    val description: String = "",
-    val base: String = "",
+    val main: String? = null,
+    val description: String? = null,
+    val base: String? = null,
     val temp: Double? = null,
     val feelsLike: Double? = null,
     val tempMin: Double? = null,
@@ -13,6 +13,6 @@ data class WeatherUiState(
     val visibility: Int? = null,
     val windSpeed: Double? = null,
     val cloudsAll: Int? = null,
-    val country: String = "",
-    val name: String = "",
+    val country: String? = null,
+    val name: String? = null,
 )

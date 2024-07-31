@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wecli.data.WeatherResponse
+import com.example.wecli.extensions.toUiState
 import com.example.wecli.repository.WeatherRepositoryImpl
 import com.example.wecli.ui.state.WeatherUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,31 +24,10 @@ class WeatherViewModel(
             weatherRepository.fetchWeather(lon, lat)
                 .catch { exception -> Log.d("Response", "Erro: ${exception.message}") }
                 .collect { weather ->
-                    val uiState = mapToUiState(weather.data)
+                    val uiState = weather.data?.toUiState() ?: WeatherUiState()
                     _uiState.value = uiState
                 }
         }
 
-    }
-
-    private fun mapToUiState(weather: WeatherResponse?): WeatherUiState {
-        return weather?.let {
-            WeatherUiState(
-                main = it.weather[0].main,
-                description = it.weather[0].description,
-                base = it.base,
-                temp = it.main.temp,
-                feelsLike = it.main.feels_like,
-                tempMin = it.main.temp_min,
-                tempMax = it.main.temp_max,
-                pressure = it.main.pressure,
-                humidity = it.main.humidity,
-                visibility = it.visibility,
-                windSpeed = it.wind.speed,
-                cloudsAll = it.clouds.all,
-                country = it.sys.country,
-                name = it.name
-            )
-        } ?: WeatherUiState()
     }
 }
