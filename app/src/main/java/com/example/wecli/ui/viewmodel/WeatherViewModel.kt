@@ -1,9 +1,7 @@
 package com.example.wecli.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wecli.data.WeatherResponse
 import com.example.wecli.extensions.toUiState
 import com.example.wecli.repository.WeatherRepositoryImpl
 import com.example.wecli.ui.state.WeatherUiState
@@ -22,12 +20,15 @@ class WeatherViewModel(
     fun getLocation(lon: Double, lat: Double) {
         viewModelScope.launch {
             weatherRepository.fetchWeather(lon, lat)
-                .catch { exception -> Log.d("Response", "Erro: ${exception.message}") }
+                .catch {
+                    _uiState.value = WeatherUiState(
+                        error = "Erro ao obter dados, tente novamente mais tarde."
+                    )
+                }
                 .collect { weather ->
                     val uiState = weather.data?.toUiState() ?: WeatherUiState()
-                    _uiState.value = uiState
+                    _uiState.value = uiState.copy(isLoading = false)
                 }
         }
-
     }
 }

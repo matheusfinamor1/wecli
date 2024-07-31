@@ -18,5 +18,4 @@ class WeatherRepositoryImpl(
             emit(Resource.Error(e.message.toString()))
         }
     }
-
 }
