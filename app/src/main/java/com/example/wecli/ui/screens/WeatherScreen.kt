@@ -10,14 +10,19 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -41,9 +46,42 @@ fun WeatherScreen(
     RequestPermission(context, showPermissionRequest, fusedLocationClient, viewModel)
     ShowDialog(showPermissionRequest, context)
     Log.d("Response", "WeatherScreen: $uiState")
-    Column {
-        Text("Ola")
+    ContentScreen(uiState)
+}
+
+@Composable
+fun ContentScreen(uiState: WeatherUiState) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+
+    ) {
+        uiState.let { attr ->
+            attr.main?.let { Text(text = it) }
+            attr.description?.let { Text(text = it) }
+            attr.base?.let { Text(text = it) }
+            attr.temp?.let { Text(text = it.toString()) }
+            attr.feelsLike?.let { Text(text = it.toString()) }
+            attr.tempMin?.let { Text(text = it.toString()) }
+            attr.tempMax?.let { Text(text = it.toString()) }
+            attr.pressure?.let { Text(text = it.toString()) }
+            attr.humidity?.let { Text(text = it.toString()) }
+            attr.visibility?.let { Text(text = it.toString()) }
+            attr.windSpeed?.let { Text(text = it.toString()) }
+            attr.cloudsAll?.let { Text(text = it.toString()) }
+            attr.country?.let { Text(text = it) }
+            attr.name?.let { Text(text = it) }
+        }
+        if (uiState.error != null) {
+            Text(text = uiState.error)
+        }
+        if (uiState.isLoading) {
+            CircularProgressIndicator()
+        }
     }
+
 }
 
 @Composable

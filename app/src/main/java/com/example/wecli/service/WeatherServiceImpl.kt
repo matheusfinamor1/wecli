@@ -11,10 +11,12 @@ class WeatherServiceImpl(
 ) : WeatherService {
     private val apiKey = BuildConfig.apiKey
     override suspend fun fetchWeather(lon: Double, lat: Double): WeatherResponse =
-        client.get("$BASE_URL?lat=${lat}&lon=${lon}&appid=${apiKey}").body()
+    client.get("$BASE_URL?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=$LANGUAGE&units=$UNITS").body()
 
     companion object {
         private const val BASE_URL =
             "https://api.openweathermap.org/data/2.5/weather"
+        private const val LANGUAGE = "pt_br"
+        private const val UNITS = "metric"
     }
 }
