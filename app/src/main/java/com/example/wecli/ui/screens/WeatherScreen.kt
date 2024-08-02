@@ -45,7 +45,6 @@ fun WeatherScreen(
     val showPermissionRequest = remember { mutableStateOf(false) }
     RequestPermission(context, showPermissionRequest, fusedLocationClient, viewModel)
     ShowDialog(showPermissionRequest, context)
-    Log.d("Response", "WeatherScreen: $uiState")
     ContentScreen(uiState)
 }
 
@@ -59,20 +58,16 @@ fun ContentScreen(uiState: WeatherUiState) {
 
     ) {
         uiState.let { attr ->
-            attr.main?.let { Text(text = it) }
-            attr.description?.let { Text(text = it) }
-            attr.base?.let { Text(text = it) }
-            attr.temp?.let { Text(text = it.toString()) }
-            attr.feelsLike?.let { Text(text = it.toString()) }
-            attr.tempMin?.let { Text(text = it.toString()) }
-            attr.tempMax?.let { Text(text = it.toString()) }
-            attr.pressure?.let { Text(text = it.toString()) }
-            attr.humidity?.let { Text(text = it.toString()) }
-            attr.visibility?.let { Text(text = it.toString()) }
-            attr.windSpeed?.let { Text(text = it.toString()) }
-            attr.cloudsAll?.let { Text(text = it.toString()) }
-            attr.country?.let { Text(text = it) }
-            attr.name?.let { Text(text = it) }
+            attr.description?.let { Text(text = "Descrição: $it") }
+            attr.temp?.let { Text(text = "Temperatura: $it") }
+            attr.feelsLike?.let { Text(text = "Sensação térmica: $it") }
+            attr.pressure?.let { Text(text = "Pressão atmosférica: $it") }
+            attr.humidity?.let { Text(text = "Umidade: $it") }
+            attr.visibility?.let { Text(text = "Visibilidade: $it") }
+            attr.windSpeed?.let { Text(text = "Velocidade do vento: $it m/s") }
+            attr.cloudsAll?.let { Text(text = "Nebulosidade: $it") }
+            attr.country?.let { Text(text = "Pais: $it") }
+            attr.name?.let { Text(text = "Cidade: $it") }
         }
         if (uiState.error != null) {
             Text(text = uiState.error)
