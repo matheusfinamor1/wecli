@@ -10,33 +10,73 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.example.wecli.ui.state.WeatherUiState
+import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 
 @Composable
-fun WeatherScreen(fusedLocationClient: FusedLocationProviderClient) {
+fun WeatherScreen(
+    fusedLocationClient: FusedLocationProviderClient,
+    viewModel: WeatherViewModel,
+    uiState: WeatherUiState
+) {
     val context = LocalContext.current
     val showPermissionRequest = remember { mutableStateOf(false) }
-    RequestPermission(context, showPermissionRequest, fusedLocationClient)
+    RequestPermission(context, showPermissionRequest, fusedLocationClient, viewModel)
     ShowDialog(showPermissionRequest, context)
-    Column {
-        Text("Ola")
+    ContentScreen(uiState)
+}
+
+@Composable
+fun ContentScreen(uiState: WeatherUiState) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+
+    ) {
+        uiState.let { attr ->
+            attr.description?.let { Text(text = "Descrição: $it") }
+            attr.temp?.let { Text(text = "Temperatura: $it") }
+            attr.feelsLike?.let { Text(text = "Sensação térmica: $it") }
+            attr.pressure?.let { Text(text = "Pressão atmosférica: $it") }
+            attr.humidity?.let { Text(text = "Umidade: $it") }
+            attr.visibility?.let { Text(text = "Visibilidade: $it") }
+            attr.windSpeed?.let { Text(text = "Velocidade do vento: $it m/s") }
+            attr.cloudsAll?.let { Text(text = "Nebulosidade: $it") }
+            attr.country?.let { Text(text = "Pais: $it") }
+            attr.name?.let { Text(text = "Cidade: $it") }
+        }
+        if (uiState.error != null) {
+            Text(text = uiState.error)
+        }
+        if (uiState.isLoading) {
+            CircularProgressIndicator()
+        }
     }
+
 }
 
 @Composable
@@ -86,7 +126,8 @@ private fun ShowDialog(
 private fun RequestPermission(
     context: Context,
     showPermissionRequest: MutableState<Boolean>,
-    fusedLocationClient: FusedLocationProviderClient
+    fusedLocationClient: FusedLocationProviderClient,
+    viewModel: WeatherViewModel
 ) {
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -94,26 +135,18 @@ private fun RequestPermission(
             if (isGranted.not()) {
                 showPermissionRequest.value = true
             } else {
-                Log.d(
-                    "Response", "RequestPermission: ${
-                        getCurrentLocation(
-                            fusedLocationClient,
-                            onGetCurrentLocationSuccess = {
-                                Log.d(
-                                    "Response",
-                                    "RequestPermission: $it"
-                                )
-                            },
-                            onGetCurrentLocationFailure = {
-                                Log.d(
-                                    "Response",
-                                    "RequestPermission: $it"
-                                )
-                            },
-                            context = context
-
+                getCurrentLocation(
+                    fusedLocationClient,
+                    onGetCurrentLocationSuccess = {
+                        viewModel.getLocation(it.second, it.first)
+                    },
+                    onGetCurrentLocationFailure = {
+                        Log.d(
+                            "Response",
+                            "RequestPermission: $it"
                         )
-                    }"
+                    },
+                    context = context
                 )
             }
         }
@@ -126,26 +159,18 @@ private fun RequestPermission(
                 if (isGranted == PackageManager.PERMISSION_DENIED)
                     locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 else
-                    Log.d(
-                        "Response", "RequestPermission: ${
-                            getCurrentLocation(
-                                fusedLocationClient,
-                                onGetCurrentLocationSuccess = {
-                                    Log.d(
-                                        "Response",
-                                        "RequestPermission: $it"
-                                    )
-                                },
-                                onGetCurrentLocationFailure = {
-                                    Log.d(
-                                        "Response",
-                                        "RequestPermission: $it"
-                                    )
-                                },
-                                context = context
-
+                    getCurrentLocation(
+                        fusedLocationClient,
+                        onGetCurrentLocationSuccess = {
+                            viewModel.getLocation(it.second, it.first)
+                        },
+                        onGetCurrentLocationFailure = {
+                            Log.d(
+                                "Response",
+                                "RequestPermission: $it"
                             )
-                        }"
+                        },
+                        context = context
                     )
             }
 
