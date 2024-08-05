@@ -6,6 +6,7 @@ import com.example.wecli.repository.hourRepository.HourRepositoryImpl
 import com.example.wecli.service.WeatherService
 import com.example.wecli.service.WeatherServiceImpl
 import com.example.wecli.ui.viewmodel.WeatherViewModel
+import com.example.wecli.useCase.GetLocationUserUseCase
 import com.example.wecli.useCase.GetMomentDayUseCase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
@@ -21,6 +22,7 @@ import org.koin.dsl.module
 val appModules = module {
     single<WeatherRepositoryImpl> { WeatherRepositoryImpl(get()) }
     single { GetMomentDayUseCase(get()) }
+    single { GetLocationUserUseCase(get())}
     single<WeatherService> { WeatherServiceImpl(get()) }
     single<HourRepository> { HourRepositoryImpl() }
     viewModel { WeatherViewModel(get(), get()) }
