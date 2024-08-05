@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,9 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.example.wecli.ui.state.WeatherUiState
+import com.example.wecli.ui.theme.Blue
+import com.example.wecli.ui.theme.BlueNight
+import com.example.wecli.ui.theme.BrownAfternoon
 import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -39,20 +43,36 @@ import com.google.android.gms.tasks.CancellationTokenSource
 fun WeatherScreen(
     fusedLocationClient: FusedLocationProviderClient,
     viewModel: WeatherViewModel,
-    uiState: WeatherUiState
+    uiState: WeatherUiState,
+    momentDay: String
 ) {
     val context = LocalContext.current
     val showPermissionRequest = remember { mutableStateOf(false) }
     RequestPermission(context, showPermissionRequest, fusedLocationClient, viewModel)
     ShowDialog(showPermissionRequest, context)
-    ContentScreen(uiState)
+    ContentScreen(uiState, momentDay)
 }
 
 @Composable
-fun ContentScreen(uiState: WeatherUiState) {
+fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
+    val background = when (momentDay) {
+        "Morning" -> {
+            Blue
+        }
+
+        "Afternoon" -> {
+            BrownAfternoon
+        }
+
+        else -> {
+            BlueNight
+        }
+
+    }
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
