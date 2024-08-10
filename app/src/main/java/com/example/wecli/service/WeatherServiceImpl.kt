@@ -5,6 +5,7 @@ import com.example.wecli.data.WeatherResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.statement.readBytes
 
 class WeatherServiceImpl(
     private val client: HttpClient
@@ -13,9 +14,13 @@ class WeatherServiceImpl(
     override suspend fun fetchWeather(lon: Double, lat: Double): WeatherResponse =
     client.get("$BASE_URL?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=$LANGUAGE&units=$UNITS").body()
 
+    override suspend fun getWeatherImage(icon: String): ByteArray = client.get("$BASE_ICON_URL/${icon}@2x.png").readBytes()
+
     companion object {
         private const val BASE_URL =
             "https://api.openweathermap.org/data/2.5/weather"
+        private const val BASE_ICON_URL =
+            "https://openweathermap.org/img/wn"
         private const val LANGUAGE = "pt_br"
         private const val UNITS = "metric"
     }

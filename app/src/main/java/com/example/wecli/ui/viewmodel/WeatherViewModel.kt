@@ -2,19 +2,16 @@ package com.example.wecli.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wecli.extensions.toUiState
-import com.example.wecli.repository.weatherRepository.WeatherRepositoryImpl
 import com.example.wecli.ui.state.WeatherUiState
-import com.example.wecli.useCase.GetLocationUserUseCase
+import com.example.wecli.useCase.GetWeatherUserUseCase
 import com.example.wecli.useCase.GetMomentDayUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class WeatherViewModel(
-    private val getLocationUserUseCase: GetLocationUserUseCase,
+    private val getWeatherUserUseCase: GetWeatherUserUseCase,
     private val getMomentDayUseCase: GetMomentDayUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(WeatherUiState())
@@ -27,9 +24,9 @@ class WeatherViewModel(
         getMomentDay()
     }
 
-    fun getLocation(lon: Double, lat: Double) {
+    fun getWeatherUser(lon: Double, lat: Double) {
         viewModelScope.launch {
-            getLocationUserUseCase.invoke(lon, lat).collect{
+            getWeatherUserUseCase.invoke(lon, lat).collect{
                 _uiState.value = it.data ?: WeatherUiState()
             }
         }

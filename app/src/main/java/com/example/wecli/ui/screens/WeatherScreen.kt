@@ -79,13 +79,13 @@ fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
     ) {
         uiState.let { attr ->
             attr.description?.let { Text(text = "Descrição: $it") }
-            attr.temp?.let { Text(text = "Temperatura: $it") }
-            attr.feelsLike?.let { Text(text = "Sensação térmica: $it") }
-            attr.pressure?.let { Text(text = "Pressão atmosférica: $it") }
-            attr.humidity?.let { Text(text = "Umidade: $it") }
+            attr.temp?.let { Text(text = "Temperatura: $it ºC") }
+            attr.feelsLike?.let { Text(text = "Sensação térmica: $it ºC") }
+            attr.pressure?.let { Text(text = "Pressão atmosférica: $it hPa") }
+            attr.humidity?.let { Text(text = "Umidade: $it%") }
             attr.visibility?.let { Text(text = "Visibilidade: $it") }
-            attr.windSpeed?.let { Text(text = "Velocidade do vento: $it m/s") }
-            attr.cloudsAll?.let { Text(text = "Nebulosidade: $it") }
+            attr.windSpeed?.let { Text(text = "Velocidade do vento: $it km/h") }
+            attr.cloudsAll?.let { Text(text = "Nebulosidade: $it%") }
             attr.country?.let { Text(text = "Pais: $it") }
             attr.name?.let { Text(text = "Cidade: $it") }
         }
@@ -158,7 +158,7 @@ private fun RequestPermission(
                 getCurrentLocation(
                     fusedLocationClient,
                     onGetCurrentLocationSuccess = {
-                        viewModel.getLocation(it.second, it.first)
+                        viewModel.getWeatherUser(it.second, it.first)
                     },
                     onGetCurrentLocationFailure = {
                         Log.d(
@@ -182,7 +182,7 @@ private fun RequestPermission(
                     getCurrentLocation(
                         fusedLocationClient,
                         onGetCurrentLocationSuccess = {
-                            viewModel.getLocation(it.second, it.first)
+                            viewModel.getWeatherUser(it.second, it.first)
                         },
                         onGetCurrentLocationFailure = {
                             Log.d(

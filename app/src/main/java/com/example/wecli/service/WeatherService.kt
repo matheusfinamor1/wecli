@@ -4,4 +4,5 @@ import com.example.wecli.data.WeatherResponse
 
 interface WeatherService {
     suspend fun fetchWeather(lon: Double, lat: Double): WeatherResponse
+    suspend fun getWeatherImage(icon: String): ByteArray
 }

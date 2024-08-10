@@ -13,6 +13,7 @@ class WeatherRepositoryImpl(
         emit(Resource.Loading())
         try {
             val weather = weatherService.fetchWeather(lon, lat)
+            weatherService.getWeatherImage(weather.weather[0].icon)
             emit(Resource.Success(weather))
         } catch (e: Exception) {
             emit(Resource.Error(e.message.toString()))
