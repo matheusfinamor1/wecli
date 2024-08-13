@@ -30,6 +30,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.wecli.ui.state.WeatherUiState
 import com.example.wecli.ui.theme.Blue
 import com.example.wecli.ui.theme.BlueNight
@@ -53,6 +55,7 @@ fun WeatherScreen(
     ContentScreen(uiState, momentDay)
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
     val background = when (momentDay) {
@@ -88,6 +91,12 @@ fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
             attr.cloudsAll?.let { Text(text = "Nebulosidade: $it%") }
             attr.country?.let { Text(text = "Pais: $it") }
             attr.name?.let { Text(text = "Cidade: $it") }
+            attr.icon?.let {
+                GlideImage(
+                    model = "https://openweathermap.org/img/wn/${it}@2x.png",
+                    contentDescription = null,
+                )
+            }
         }
         if (uiState.error != null) {
             Text(text = uiState.error)

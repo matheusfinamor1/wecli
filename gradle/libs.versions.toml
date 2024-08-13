@@ -1,5 +1,6 @@
 [versions]
 agp = "8.5.0"
+composeGlide = "1.0.0-beta01"
 conscryptAndroid = "2.5.2"
 coreSplashscreen = "1.0.1"
 kotlin = "2.0.0"
@@ -25,6 +26,7 @@ playServicesMaps = "19.0.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+composeGlide = { module = "com.github.bumptech.glide:compose", version.ref = "composeGlide" }
 conscrypt-android = { module = "org.conscrypt:conscrypt-android", version.ref = "conscryptAndroid" }
 gms-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocationVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation (libs.composeGlide)
     implementation(libs.secrets.gradle.plugin)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)

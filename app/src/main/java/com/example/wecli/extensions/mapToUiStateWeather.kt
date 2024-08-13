@@ -14,7 +14,8 @@ fun WeatherResponse.toUiState(): WeatherUiState {
             windSpeed = it.wind.speed.toInt(),
             cloudsAll = it.clouds.all,
             country = it.sys.country,
-            name = it.name
+            name = it.name,
+            icon = it.weather[0].icon
         )
     }
 }
