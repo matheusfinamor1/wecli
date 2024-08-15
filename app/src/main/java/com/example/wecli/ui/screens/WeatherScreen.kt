@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalGlideComposeApi::class)
+
 package com.example.wecli.ui.screens
 
 import android.Manifest
@@ -10,12 +12,25 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,7 +39,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
@@ -32,10 +52,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.wecli.R
 import com.example.wecli.ui.state.WeatherUiState
-import com.example.wecli.ui.theme.Blue
-import com.example.wecli.ui.theme.BlueNight
-import com.example.wecli.ui.theme.BrownAfternoon
+import com.example.wecli.ui.theme.BlueNightToWhiteGradient
+import com.example.wecli.ui.theme.BlueToWhiteGradient
+import com.example.wecli.ui.theme.BrownToWhiteGradient
+import com.example.wecli.ui.theme.White
 import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -55,48 +77,29 @@ fun WeatherScreen(
     ContentScreen(uiState, momentDay)
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
-    val background = when (momentDay) {
-        "Morning" -> {
-            Blue
-        }
-
-        "Afternoon" -> {
-            BrownAfternoon
-        }
-
-        else -> {
-            BlueNight
-        }
-
-    }
+    val background = defineBackgroundColor(momentDay)
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(background),
+            .background(brush = background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
+        ContentLocation(uiState)
+        Spacer(Modifier.height(8.dp))
+        ContentTemp(uiState)
+        Spacer(Modifier.height(8.dp))
+        ContentDescriptionAndThermalSensation(background, uiState)
+
         uiState.let { attr ->
-            attr.description?.let { Text(text = "Descrição: $it") }
-            attr.temp?.let { Text(text = "Temperatura: $it ºC") }
-            attr.feelsLike?.let { Text(text = "Sensação térmica: $it ºC") }
             attr.pressure?.let { Text(text = "Pressão atmosférica: $it hPa") }
             attr.humidity?.let { Text(text = "Umidade: $it%") }
             attr.visibility?.let { Text(text = "Visibilidade: $it") }
             attr.windSpeed?.let { Text(text = "Velocidade do vento: $it km/h") }
             attr.cloudsAll?.let { Text(text = "Nebulosidade: $it%") }
-            attr.country?.let { Text(text = "Pais: $it") }
-            attr.name?.let { Text(text = "Cidade: $it") }
-            attr.icon?.let {
-                GlideImage(
-                    model = "https://openweathermap.org/img/wn/${it}@2x.png",
-                    contentDescription = null,
-                )
-            }
         }
         if (uiState.error != null) {
             Text(text = uiState.error)
@@ -106,6 +109,98 @@ fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
         }
     }
 
+}
+
+@Composable
+private fun ContentDescriptionAndThermalSensation(
+    background: Brush,
+    uiState: WeatherUiState
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+            .border(brush = background, shape = CircleShape, width = 2.dp),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        GlideImage(
+            model = "https://openweathermap.org/img/wn/${uiState.icon}@2x.png",
+            contentDescription = null
+        )
+        uiState.description?.let { description ->
+            Text(text = description.replaceFirstChar { it.uppercase() })
+        }
+        Spacer(Modifier.width(6.dp))
+        Image(
+            painter = painterResource(id = R.drawable.icon_temp),
+            contentDescription = null,
+            modifier = Modifier.size(22.dp)
+        )
+        uiState.feelsLike?.let {
+            Text(text = "Sensação térmica: $it ºC")
+        }
+    }
+}
+
+@Composable
+private fun ContentTemp(uiState: WeatherUiState) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        uiState.let {
+            it.temp?.let { temp ->
+                Text(
+                    text = "$temp",
+                    fontSize = 64.sp,
+                    color = White
+                )
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("ºC", modifier = Modifier.padding(top = 10.dp), color = White)
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun ContentLocation(uiState: WeatherUiState) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        uiState.let {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = null,
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            it.name?.let { text -> Text(text) }
+            it.country?.let { text -> Text(", $text") }
+        }
+    }
+}
+
+@Composable
+private fun defineBackgroundColor(momentDay: String): Brush {
+    val background = when (momentDay) {
+        "Morning" -> {
+            BlueToWhiteGradient
+        }
+
+        "Afternoon" -> {
+            BrownToWhiteGradient
+        }
+
+        else -> {
+            BlueNightToWhiteGradient
+        }
+
+    }
+    return background
 }
 
 @Composable

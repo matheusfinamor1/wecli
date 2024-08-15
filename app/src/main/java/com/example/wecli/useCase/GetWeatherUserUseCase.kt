@@ -4,9 +4,7 @@ import com.example.wecli.extensions.toUiState
 import com.example.wecli.repository.weatherRepository.WeatherRepositoryImpl
 import com.example.wecli.response.Resource
 import com.example.wecli.ui.state.WeatherUiState
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
 class GetWeatherUserUseCase(
