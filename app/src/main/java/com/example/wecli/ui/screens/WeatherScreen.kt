@@ -25,12 +25,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -93,10 +96,9 @@ fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
         ContentTemp(uiState)
         Spacer(Modifier.height(8.dp))
         ContentDescriptionAndThermalSensation(background, uiState)
+        ContentHumidityAndAtmosphericPressure(background, uiState)
 
         uiState.let { attr ->
-            attr.pressure?.let { Text(text = "Pressão atmosférica: $it hPa") }
-            attr.humidity?.let { Text(text = "Umidade: $it%") }
             attr.visibility?.let { Text(text = "Visibilidade: $it") }
             attr.windSpeed?.let { Text(text = "Velocidade do vento: $it km/h") }
             attr.cloudsAll?.let { Text(text = "Nebulosidade: $it%") }
@@ -112,6 +114,63 @@ fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
 }
 
 @Composable
+private fun ContentHumidityAndAtmosphericPressure(
+    background: Brush,
+    uiState: WeatherUiState
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .wrapContentWidth()
+                .border(brush = background, shape = ShapeDefaults.Medium, width = 2.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_pressao_atm),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .padding(end = 8.dp)
+                )
+                uiState.pressure?.let {
+                    Text("$it hPa")
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_umidade),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .padding(end = 8.dp)
+                )
+                uiState.humidity?.let {
+                    Text("$it%")
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
 private fun ContentDescriptionAndThermalSensation(
     background: Brush,
     uiState: WeatherUiState
@@ -119,26 +178,44 @@ private fun ContentDescriptionAndThermalSensation(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(6.dp)
+            .padding(4.dp)
             .border(brush = background, shape = CircleShape, width = 2.dp),
-        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        GlideImage(
-            model = "https://openweathermap.org/img/wn/${uiState.icon}@2x.png",
-            contentDescription = null
-        )
-        uiState.description?.let { description ->
-            Text(text = description.replaceFirstChar { it.uppercase() })
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            GlideImage(
+                model = "https://openweathermap.org/img/wn/${uiState.icon}@2x.png",
+                contentDescription = null
+            )
+            uiState.description?.let { description ->
+                Text(
+                    text = description.replaceFirstChar { it.uppercase() },
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
-        Spacer(Modifier.width(6.dp))
-        Image(
-            painter = painterResource(id = R.drawable.icon_temp),
-            contentDescription = null,
-            modifier = Modifier.size(22.dp)
-        )
-        uiState.feelsLike?.let {
-            Text(text = "Sensação térmica: $it ºC")
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_temp),
+                contentDescription = null,
+                modifier = Modifier.size(22.dp)
+            )
+            uiState.feelsLike?.let {
+                Text(
+                    text = "$it ºC",
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(end = 12.dp),
+                    maxLines = 1
+                )
+            }
         }
     }
 }
