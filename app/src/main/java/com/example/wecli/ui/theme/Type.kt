@@ -2,9 +2,11 @@ package com.example.wecli.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.wecli.R
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -31,4 +33,12 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+
+val openSansFontFamily = FontFamily(
+    Font(R.font.open_sans_regular, FontWeight.Normal),
+    Font(R.font.open_sans_bold, FontWeight.Bold),
+    Font(R.font.open_sans_italic),
+    Font(R.font.open_sans_semibold, FontWeight.SemiBold),
+    Font(R.font.open_sans_semibolditalic, FontWeight.SemiBold)
 )

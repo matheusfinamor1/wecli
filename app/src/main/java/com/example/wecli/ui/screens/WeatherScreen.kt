@@ -26,12 +26,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,9 +41,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle.Companion.Italic
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,6 +61,7 @@ import com.example.wecli.ui.theme.BlueNightToWhiteGradient
 import com.example.wecli.ui.theme.BlueToWhiteGradient
 import com.example.wecli.ui.theme.BrownToWhiteGradient
 import com.example.wecli.ui.theme.White
+import com.example.wecli.ui.theme.openSansFontFamily
 import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -83,90 +84,167 @@ fun WeatherScreen(
 @Composable
 fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
     val background = defineBackgroundColor(momentDay)
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(brush = background),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    val scrollState = rememberScrollState()
 
-    ) {
-        ContentLocation(uiState)
-        Spacer(Modifier.height(8.dp))
-        ContentTemp(uiState)
-        Spacer(Modifier.height(8.dp))
-        ContentDescriptionAndThermalSensation(background, uiState)
-        ContentHumidityAndAtmosphericPressure(background, uiState)
+    when (uiState.isLoading) {
+        true -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(brush = background)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
 
-        uiState.let { attr ->
-            attr.visibility?.let { Text(text = "Visibilidade: $it") }
-            attr.windSpeed?.let { Text(text = "Velocidade do vento: $it km/h") }
-            attr.cloudsAll?.let { Text(text = "Nebulosidade: $it%") }
+            ) {
+                CircularProgressIndicator()
+            }
         }
-        if (uiState.error != null) {
-            Text(text = uiState.error)
-        }
-        if (uiState.isLoading) {
-            CircularProgressIndicator()
+
+        false -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(brush = background)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+
+            ) {
+                Spacer(Modifier.height(64.dp))
+                ContentLocation(uiState)
+                Spacer(Modifier.height(32.dp))
+                ContentTemp(uiState)
+                Spacer(Modifier.height(32.dp))
+                ContentDescriptionAndThermalSensation(background, uiState)
+                Spacer(Modifier.height(64.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ContentHumidityAndAtmosphericPressure(
+                        background,
+                        uiState,
+                        Modifier
+                            .weight(1f)
+                            .padding(start = 6.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    ContentWindSpeedAndCloudiness(
+                        background,
+                        uiState,
+                        Modifier
+                            .weight(1f)
+                            .padding(end = 6.dp)
+                    )
+                }
+                Spacer(Modifier.height(64.dp))
+            }
         }
     }
-
 }
 
 @Composable
 private fun ContentHumidityAndAtmosphericPressure(
     background: Brush,
-    uiState: WeatherUiState
+    uiState: WeatherUiState,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(6.dp),
+    Column(
+        modifier = modifier
+            .border(brush = background, shape = ShapeDefaults.Medium, width = 2.dp)
+            .padding(6.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .wrapContentWidth()
-                .border(brush = background, shape = ShapeDefaults.Medium, width = 2.dp)
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+            Image(
+                painter = painterResource(id = R.drawable.icon_pressao_atm),
+                contentDescription = null,
                 modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_pressao_atm),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .padding(end = 8.dp)
-                )
-                uiState.pressure?.let {
-                    Text("$it hPa")
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_umidade),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .padding(end = 8.dp)
-                )
-                uiState.humidity?.let {
-                    Text("$it%")
-                }
+                    .size(22.dp)
+                    .padding(end = 8.dp)
+            )
+            uiState.pressure?.let {
+                Text("$it hPa")
             }
         }
 
+        Row(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_umidade),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(22.dp)
+                    .padding(end = 8.dp)
+            )
+            uiState.humidity?.let {
+                Text("$it%")
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun ContentWindSpeedAndCloudiness(
+    background: Brush,
+    uiState: WeatherUiState,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .border(brush = background, shape = ShapeDefaults.Medium, width = 2.dp)
+            .padding(6.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_veloc_vento),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(22.dp)
+                    .padding(end = 8.dp)
+            )
+            uiState.windSpeed?.let {
+                Text("$it km/h")
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_nebulos),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(22.dp)
+                    .padding(end = 8.dp)
+            )
+            uiState.cloudsAll?.let {
+                Text("$it%")
+            }
+        }
     }
 }
 
@@ -224,20 +302,26 @@ private fun ContentDescriptionAndThermalSensation(
 private fun ContentTemp(uiState: WeatherUiState) {
     Row(
         modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
     ) {
         uiState.let {
             it.temp?.let { temp ->
                 Text(
                     text = "$temp",
                     fontSize = 64.sp,
-                    color = White
+                    color = White,
+                    fontFamily = openSansFontFamily
                 )
             }
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("ºC", modifier = Modifier.padding(top = 10.dp), color = White)
-            }
+            Text(
+                text = "ºC",
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(top = 16.dp),
+                color = White,
+                fontFamily = openSansFontFamily,
+                fontWeight = Bold
+            )
 
         }
     }
@@ -246,17 +330,35 @@ private fun ContentTemp(uiState: WeatherUiState) {
 @Composable
 private fun ContentLocation(uiState: WeatherUiState) {
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         uiState.let {
-            Icon(
-                imageVector = Icons.Default.LocationOn,
+            Image(
+                painter = painterResource(id = R.drawable.icon_loc),
                 contentDescription = null,
-                tint = Color.White
+                modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            it.name?.let { text -> Text(text) }
-            it.country?.let { text -> Text(", $text") }
+            it.name?.let { text ->
+                Text(
+                    text = text,
+                    fontSize = 20.sp,
+                    color = White,
+                    fontFamily = openSansFontFamily,
+                    fontStyle = Italic
+                )
+            }
+            it.country?.let { text ->
+                Text(
+                    text = ", $text",
+                    fontSize = 20.sp,
+                    color = White,
+                    fontFamily = openSansFontFamily,
+                    fontStyle = Italic
+                )
+            }
         }
     }
 }
