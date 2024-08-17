@@ -171,7 +171,10 @@ private fun ContentHumidityAndAtmosphericPressure(
                     .padding(end = 8.dp)
             )
             uiState.pressure?.let {
-                Text("$it hPa")
+                Text(
+                    text = "$it hPa",
+                    fontFamily = openSansFontFamily
+                )
             }
         }
 
@@ -190,7 +193,10 @@ private fun ContentHumidityAndAtmosphericPressure(
                     .padding(end = 8.dp)
             )
             uiState.humidity?.let {
-                Text("$it%")
+                Text(
+                    text = "$it%",
+                    fontFamily = openSansFontFamily
+                )
             }
         }
     }
@@ -223,7 +229,10 @@ private fun ContentWindSpeedAndCloudiness(
                     .padding(end = 8.dp)
             )
             uiState.windSpeed?.let {
-                Text("$it km/h")
+                Text(
+                    text = "$it km/h",
+                    fontFamily = openSansFontFamily,
+                )
             }
         }
 
@@ -242,7 +251,10 @@ private fun ContentWindSpeedAndCloudiness(
                     .padding(end = 8.dp)
             )
             uiState.cloudsAll?.let {
-                Text("$it%")
+                Text(
+                    text = "$it%",
+                    fontFamily = openSansFontFamily
+                )
             }
         }
     }
@@ -271,6 +283,7 @@ private fun ContentDescriptionAndThermalSensation(
             uiState.description?.let { description ->
                 Text(
                     text = description.replaceFirstChar { it.uppercase() },
+                    fontFamily = openSansFontFamily,
                     modifier = Modifier.fillMaxWidth(0.5f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -288,6 +301,7 @@ private fun ContentDescriptionAndThermalSensation(
             uiState.feelsLike?.let {
                 Text(
                     text = "$it ºC",
+                    fontFamily = openSansFontFamily,
                     modifier = Modifier
                         .wrapContentWidth()
                         .padding(end = 12.dp),
