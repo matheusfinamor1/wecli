@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -61,7 +60,6 @@ import com.example.wecli.ui.state.WeatherUiState
 import com.example.wecli.ui.theme.BlueNightToWhiteGradient
 import com.example.wecli.ui.theme.BlueToWhiteGradient
 import com.example.wecli.ui.theme.BrownToWhiteGradient
-import com.example.wecli.ui.theme.Gray
 import com.example.wecli.ui.theme.White
 import com.example.wecli.ui.theme.openSansFontFamily
 import com.example.wecli.ui.viewmodel.WeatherViewModel
@@ -84,7 +82,7 @@ fun WeatherScreen(
 }
 
 @Composable
-fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
+private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
     val background = defineBackgroundColor(momentDay)
     val scrollState = rememberScrollState()
 
@@ -142,6 +140,124 @@ fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                     )
                 }
                 Spacer(Modifier.height(64.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContentLocation(uiState: WeatherUiState) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        uiState.let {
+            Image(
+                painter = painterResource(id = R.drawable.icon_loc),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            it.name?.let { text ->
+                Text(
+                    text = text,
+                    fontSize = 20.sp,
+                    color = White,
+                    fontFamily = openSansFontFamily,
+                    fontStyle = Italic
+                )
+            }
+            it.country?.let { text ->
+                Text(
+                    text = ", $text",
+                    fontSize = 20.sp,
+                    color = White,
+                    fontFamily = openSansFontFamily,
+                    fontStyle = Italic
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContentTemp(uiState: WeatherUiState) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        uiState.let {
+            it.temp?.let { temp ->
+                Text(
+                    text = "$temp",
+                    fontSize = 64.sp,
+                    color = White,
+                    fontFamily = openSansFontFamily
+                )
+            }
+            Text(
+                text = "ºC",
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(top = 16.dp),
+                color = White,
+                fontFamily = openSansFontFamily,
+                fontWeight = Bold
+            )
+
+        }
+    }
+}
+
+@Composable
+private fun ContentDescriptionAndThermalSensation(
+    background: Brush,
+    uiState: WeatherUiState
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
+            .background(brush = background),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            GlideImage(
+                model = "https://openweathermap.org/img/wn/${uiState.icon}@2x.png",
+                contentDescription = null
+            )
+            uiState.description?.let { description ->
+                Text(
+                    text = description.replaceFirstChar { it.uppercase() },
+                    fontFamily = openSansFontFamily,
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_temp),
+                contentDescription = null,
+                modifier = Modifier.size(22.dp)
+            )
+            uiState.feelsLike?.let {
+                Text(
+                    text = "$it ºC",
+                    fontFamily = openSansFontFamily,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(end = 12.dp),
+                    maxLines = 1
+                )
             }
         }
     }
@@ -258,124 +374,6 @@ private fun ContentWindSpeedAndCloudiness(
                 Text(
                     text = "$it%",
                     fontFamily = openSansFontFamily
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ContentDescriptionAndThermalSensation(
-    background: Brush,
-    uiState: WeatherUiState
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .border(color = Color.LightGray, shape = CircleShape, width = 2.dp)
-            .background(brush = background),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            GlideImage(
-                model = "https://openweathermap.org/img/wn/${uiState.icon}@2x.png",
-                contentDescription = null
-            )
-            uiState.description?.let { description ->
-                Text(
-                    text = description.replaceFirstChar { it.uppercase() },
-                    fontFamily = openSansFontFamily,
-                    modifier = Modifier.fillMaxWidth(0.5f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_temp),
-                contentDescription = null,
-                modifier = Modifier.size(22.dp)
-            )
-            uiState.feelsLike?.let {
-                Text(
-                    text = "$it ºC",
-                    fontFamily = openSansFontFamily,
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(end = 12.dp),
-                    maxLines = 1
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ContentTemp(uiState: WeatherUiState) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        uiState.let {
-            it.temp?.let { temp ->
-                Text(
-                    text = "$temp",
-                    fontSize = 64.sp,
-                    color = White,
-                    fontFamily = openSansFontFamily
-                )
-            }
-            Text(
-                text = "ºC",
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(top = 16.dp),
-                color = White,
-                fontFamily = openSansFontFamily,
-                fontWeight = Bold
-            )
-
-        }
-    }
-}
-
-@Composable
-private fun ContentLocation(uiState: WeatherUiState) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        uiState.let {
-            Image(
-                painter = painterResource(id = R.drawable.icon_loc),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            it.name?.let { text ->
-                Text(
-                    text = text,
-                    fontSize = 20.sp,
-                    color = White,
-                    fontFamily = openSansFontFamily,
-                    fontStyle = Italic
-                )
-            }
-            it.country?.let { text ->
-                Text(
-                    text = ", $text",
-                    fontSize = 20.sp,
-                    color = White,
-                    fontFamily = openSansFontFamily,
-                    fontStyle = Italic
                 )
             }
         }
