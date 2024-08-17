@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
@@ -292,7 +293,7 @@ private fun ContentHumidityAndAtmosphericPressure(
             )
             uiState.pressure?.let {
                 Text(
-                    text = stringResource(R.string.uni_med_atm_press, it),
+                    text = "$it ${stringResource(R.string.uni_med_atm_press)}",
                     fontFamily = openSansFontFamily
                 )
             }
@@ -314,7 +315,7 @@ private fun ContentHumidityAndAtmosphericPressure(
             )
             uiState.humidity?.let {
                 Text(
-                    text = stringResource(R.string.percent, it),
+                    text = "$it${stringResource(R.string.percent)}",
                     fontFamily = openSansFontFamily
                 )
             }
@@ -351,7 +352,7 @@ private fun ContentWindSpeedAndCloudiness(
             )
             uiState.windSpeed?.let {
                 Text(
-                    text = stringResource(R.string.uni_med_veloc_km_h, it),
+                    text = "$it ${stringResource(R.string.uni_med_veloc_km_h)}",
                     fontFamily = openSansFontFamily,
                 )
             }
@@ -373,7 +374,7 @@ private fun ContentWindSpeedAndCloudiness(
             )
             uiState.cloudsAll?.let {
                 Text(
-                    text = stringResource(R.string.percent, it),
+                    text = "$it${stringResource(R.string.percent)}",
                     fontFamily = openSansFontFamily
                 )
             }
@@ -425,16 +426,22 @@ private fun ShowDialog(
                         }.also {
                             startActivity(context, it, null)
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color.Black
+                    )
                 ) {
-                    Text(stringResource(R.string.message_go_config))
+                    Text("Ir para configurações")
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = {
                         showPermissionRequest.value = false
-                    }
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color.Black
+                    )
                 ) {
                     Text(stringResource(R.string.message_close))
                 }
