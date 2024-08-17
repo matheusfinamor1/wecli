@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle.Companion.Italic
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextOverflow
@@ -197,7 +198,7 @@ private fun ContentTemp(uiState: WeatherUiState) {
                 )
             }
             Text(
-                text = "ºC",
+                text = stringResource(R.string.uni_med_grau_celsius),
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(top = 16.dp),
@@ -291,7 +292,7 @@ private fun ContentHumidityAndAtmosphericPressure(
             )
             uiState.pressure?.let {
                 Text(
-                    text = "$it hPa",
+                    text = stringResource(R.string.uni_med_atm_press, it),
                     fontFamily = openSansFontFamily
                 )
             }
@@ -313,7 +314,7 @@ private fun ContentHumidityAndAtmosphericPressure(
             )
             uiState.humidity?.let {
                 Text(
-                    text = "$it%",
+                    text = stringResource(R.string.percent, it),
                     fontFamily = openSansFontFamily
                 )
             }
@@ -350,7 +351,7 @@ private fun ContentWindSpeedAndCloudiness(
             )
             uiState.windSpeed?.let {
                 Text(
-                    text = "$it km/h",
+                    text = stringResource(R.string.uni_med_veloc_km_h, it),
                     fontFamily = openSansFontFamily,
                 )
             }
@@ -372,7 +373,7 @@ private fun ContentWindSpeedAndCloudiness(
             )
             uiState.cloudsAll?.let {
                 Text(
-                    text = "$it%",
+                    text = stringResource(R.string.percent, it),
                     fontFamily = openSansFontFamily
                 )
             }
@@ -383,11 +384,11 @@ private fun ContentWindSpeedAndCloudiness(
 @Composable
 private fun defineBackgroundColor(momentDay: String): Brush {
     val background = when (momentDay) {
-        "Morning" -> {
+        stringResource(R.string.periodic_day_morning) -> {
             BlueToWhiteGradient
         }
 
-        "Afternoon" -> {
+        stringResource(R.string.periodic_day_afternoon) -> {
             BrownToWhiteGradient
         }
 
@@ -407,10 +408,10 @@ private fun ShowDialog(
     if (showPermissionRequest.value) {
         AlertDialog(
             title = {
-                Text(text = "Autorize o acesso a localização")
+                Text(text = stringResource(R.string.title_message_aut_location))
             },
             text = {
-                Text(text = "Para um bom uso do aplicativo, é necessaria a autorização do uso da localização do seu dispositivo.")
+                Text(text = stringResource(R.string.message_aut_location))
             },
             onDismissRequest = {
                 showPermissionRequest.value = false
@@ -426,7 +427,7 @@ private fun ShowDialog(
                         }
                     }
                 ) {
-                    Text("Ir para configurações")
+                    Text(stringResource(R.string.message_go_config))
                 }
             },
             dismissButton = {
@@ -435,7 +436,7 @@ private fun ShowDialog(
                         showPermissionRequest.value = false
                     }
                 ) {
-                    Text("Fechar")
+                    Text(stringResource(R.string.message_close))
                 }
             }
         )
