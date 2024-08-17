@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle.Companion.Italic
@@ -60,6 +61,7 @@ import com.example.wecli.ui.state.WeatherUiState
 import com.example.wecli.ui.theme.BlueNightToWhiteGradient
 import com.example.wecli.ui.theme.BlueToWhiteGradient
 import com.example.wecli.ui.theme.BrownToWhiteGradient
+import com.example.wecli.ui.theme.Gray
 import com.example.wecli.ui.theme.White
 import com.example.wecli.ui.theme.openSansFontFamily
 import com.example.wecli.ui.viewmodel.WeatherViewModel
@@ -153,8 +155,9 @@ private fun ContentHumidityAndAtmosphericPressure(
 ) {
     Column(
         modifier = modifier
-            .border(brush = background, shape = ShapeDefaults.Medium, width = 2.dp)
-            .padding(6.dp)
+            .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
+            .padding(2.dp)
+            .background(brush = background)
     ) {
         Row(
             modifier = Modifier
@@ -211,8 +214,9 @@ private fun ContentWindSpeedAndCloudiness(
 ) {
     Column(
         modifier = modifier
-            .border(brush = background, shape = ShapeDefaults.Medium, width = 2.dp)
-            .padding(6.dp)
+            .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
+            .padding(2.dp)
+            .background(brush = background)
     ) {
         Row(
             modifier = Modifier
@@ -269,7 +273,8 @@ private fun ContentDescriptionAndThermalSensation(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp)
-            .border(brush = background, shape = CircleShape, width = 2.dp),
+            .border(color = Color.LightGray, shape = CircleShape, width = 2.dp)
+            .background(brush = background),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
