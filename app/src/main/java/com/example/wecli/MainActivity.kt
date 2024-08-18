@@ -23,7 +23,8 @@ class MainActivity : ComponentActivity() {
             WecliTheme {
                 val viewModel: WeatherViewModel = koinViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                WeatherScreen(fusedLocationClient, viewModel, uiState)
+                val momentDay by viewModel.momentDay.collectAsStateWithLifecycle()
+                WeatherScreen(fusedLocationClient, viewModel, uiState, momentDay)
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.example.wecli.repository
+package com.example.wecli.repository.weatherRepository
 
 import com.example.wecli.data.WeatherResponse
 import com.example.wecli.response.Resource

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Wecli</string>
+    <string name="uni_med_grau_celsius">ºC</string>
+    <string name="uni_med_atm_press">hPa</string>
+    <string name="percent">%</string>
+    <string name="uni_med_veloc_km_h">km/h</string>
+    <string name="periodic_day_morning">Morning</string>
+    <string name="periodic_day_afternoon">Afternoon</string>
+    <string name="title_message_aut_location">Autorize o acesso a localização</string>
+    <string name="message_aut_location">Para um bom uso do aplicativo, é necessaria a autorização do uso da localização do seu dispositivo.</string>
+    <string name="message_go_config">Ir para configurações</string>
+    <string name="message_close">Fechar</string>
 </resources>

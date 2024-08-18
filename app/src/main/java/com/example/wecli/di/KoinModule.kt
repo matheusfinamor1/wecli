@@ -1,9 +1,13 @@
 package com.example.wecli.di
 
-import com.example.wecli.repository.WeatherRepositoryImpl
+import com.example.wecli.repository.hourRepository.HourRepository
+import com.example.wecli.repository.hourRepository.HourRepositoryImpl
+import com.example.wecli.repository.weatherRepository.WeatherRepositoryImpl
 import com.example.wecli.service.WeatherService
 import com.example.wecli.service.WeatherServiceImpl
 import com.example.wecli.ui.viewmodel.WeatherViewModel
+import com.example.wecli.useCase.GetMomentDayUseCase
+import com.example.wecli.useCase.GetWeatherUserUseCase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -12,20 +16,31 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.conscrypt.Conscrypt
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import javax.net.ssl.SSLContext
 
 val appModules = module {
     single<WeatherRepositoryImpl> { WeatherRepositoryImpl(get()) }
+    single { GetMomentDayUseCase(get()) }
+    single { GetWeatherUserUseCase(get()) }
     single<WeatherService> { WeatherServiceImpl(get()) }
-    viewModel { WeatherViewModel(get()) }
+    single<HourRepository> { HourRepositoryImpl() }
+    viewModel { WeatherViewModel(get(), get()) }
 }
 
 val networkModule = module {
     single {
+        initializeConscrypt()
         HttpClient(Android) {
             install(Logging) {
                 level = LogLevel.ALL
+                logger = object : io.ktor.client.plugins.logging.Logger {
+                    override fun log(message: String) {
+                        println(message)
+                    }
+                }
             }
             install(ContentNegotiation) {
                 json(
@@ -37,4 +52,10 @@ val networkModule = module {
             }
         }
     }
+}
+
+private fun initializeConscrypt() {
+    val sslContext = SSLContext.getInstance("TLS", Conscrypt.newProvider())
+    sslContext.init(null, null, null)
+    SSLContext.setDefault(sslContext)
 }

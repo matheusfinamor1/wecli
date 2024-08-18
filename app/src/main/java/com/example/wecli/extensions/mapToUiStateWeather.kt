@@ -7,15 +7,15 @@ fun WeatherResponse.toUiState(): WeatherUiState {
     return this.let {
         WeatherUiState(
             description = it.weather[0].description,
-            temp = it.main.temp,
-            feelsLike = it.main.feels_like,
+            temp = it.main.temp.toInt(),
+            feelsLike = it.main.feels_like.toInt(),
             pressure = it.main.pressure,
             humidity = it.main.humidity,
-            visibility = it.visibility,
-            windSpeed = it.wind.speed,
+            windSpeed = it.wind.speed.toInt(),
             cloudsAll = it.clouds.all,
             country = it.sys.country,
-            name = it.name
+            name = it.name,
+            icon = it.weather[0].icon
         )
     }
 }
