@@ -1,5 +1,6 @@
 package com.example.wecli.di
 
+import com.example.wecli.core.LocationUserManager
 import com.example.wecli.repository.hourRepository.HourRepository
 import com.example.wecli.repository.hourRepository.HourRepositoryImpl
 import com.example.wecli.repository.weatherRepository.WeatherRepositoryImpl
@@ -27,6 +28,7 @@ val appModules = module {
     single { GetWeatherUserUseCase(get()) }
     single<WeatherService> { WeatherServiceImpl(get()) }
     single<HourRepository> { HourRepositoryImpl() }
+    single { LocationUserManager(get()) }
     viewModel { WeatherViewModel(get(), get()) }
 }
 

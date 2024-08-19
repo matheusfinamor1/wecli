@@ -6,12 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.wecli.core.LocationUserManager
 import com.example.wecli.ui.screens.WeatherScreen
 import com.example.wecli.ui.theme.WecliTheme
 import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.getKoin
 
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -24,7 +26,14 @@ class MainActivity : ComponentActivity() {
                 val viewModel: WeatherViewModel = koinViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 val momentDay by viewModel.momentDay.collectAsStateWithLifecycle()
-                WeatherScreen(fusedLocationClient, viewModel, uiState, momentDay)
+                val locationManager: LocationUserManager = getKoin().get()
+                WeatherScreen(
+                    fusedLocationClient = fusedLocationClient,
+                    viewModel = viewModel,
+                    uiState = uiState,
+                    momentDay = momentDay,
+                    locationManager = locationManager
+                )
             }
         }
     }
