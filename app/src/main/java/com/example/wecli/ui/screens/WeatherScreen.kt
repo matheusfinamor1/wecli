@@ -48,11 +48,15 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.example.wecli.R
 import com.example.wecli.core.LocationUserManager
 import com.example.wecli.ui.state.WeatherUiState
+import com.example.wecli.ui.theme.Blue
+import com.example.wecli.ui.theme.BlueNight
 import com.example.wecli.ui.theme.BlueNightToWhiteGradient
 import com.example.wecli.ui.theme.BlueToWhiteGradient
+import com.example.wecli.ui.theme.BrownAfternoon
 import com.example.wecli.ui.theme.BrownToWhiteGradient
 import com.example.wecli.ui.theme.White
 import com.example.wecli.ui.theme.openSansFontFamily
@@ -86,7 +90,7 @@ fun WeatherScreen(
 
 @Composable
 private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
-    val background = defineBackgroundColor(momentDay)
+    val background = defineBackgroundColorForScreen(momentDay)
     val scrollState = rememberScrollState()
 
     when (uiState.isLoading) {
@@ -105,6 +109,8 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
         }
 
         false -> {
+            val backgroundLayoutComposable: Color =
+                defineBackgroundColorForLayoutComposable(background)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -119,7 +125,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                 Spacer(Modifier.height(32.dp))
                 ContentTemp(uiState)
                 Spacer(Modifier.height(32.dp))
-                ContentDescriptionAndThermalSensation(background, uiState)
+                ContentDescriptionAndThermalSensation(uiState, backgroundLayoutComposable)
                 Spacer(Modifier.height(64.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -127,7 +133,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     ContentHumidityAndAtmosphericPressure(
-                        background,
+                        backgroundLayoutComposable,
                         uiState,
                         Modifier
                             .weight(1f)
@@ -135,7 +141,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     ContentWindSpeedAndCloudiness(
-                        background,
+                        backgroundLayoutComposable,
                         uiState,
                         Modifier
                             .weight(1f)
@@ -185,7 +191,9 @@ private fun ContentLocation(uiState: WeatherUiState) {
 }
 
 @Composable
-private fun ContentTemp(uiState: WeatherUiState) {
+private fun ContentTemp(
+    uiState: WeatherUiState
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -215,15 +223,15 @@ private fun ContentTemp(uiState: WeatherUiState) {
 
 @Composable
 private fun ContentDescriptionAndThermalSensation(
-    background: Brush,
-    uiState: WeatherUiState
+    uiState: WeatherUiState,
+    backgroundLayoutComposable: Color
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
-            .background(brush = background),
+            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -232,7 +240,7 @@ private fun ContentDescriptionAndThermalSensation(
         ) {
             GlideImage(
                 model = "https://openweathermap.org/img/wn/${uiState.icon}@2x.png",
-                contentDescription = null
+                contentDescription = null,
             )
             uiState.description?.let { description ->
                 Text(
@@ -268,7 +276,7 @@ private fun ContentDescriptionAndThermalSensation(
 
 @Composable
 private fun ContentHumidityAndAtmosphericPressure(
-    background: Brush,
+    backgroundLayoutComposable: Color,
     uiState: WeatherUiState,
     modifier: Modifier = Modifier
 ) {
@@ -276,7 +284,7 @@ private fun ContentHumidityAndAtmosphericPressure(
         modifier = modifier
             .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
             .padding(2.dp)
-            .background(brush = background)
+            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
     ) {
         Row(
             modifier = Modifier
@@ -327,7 +335,7 @@ private fun ContentHumidityAndAtmosphericPressure(
 
 @Composable
 private fun ContentWindSpeedAndCloudiness(
-    background: Brush,
+    backgroundLayoutComposable: Color,
     uiState: WeatherUiState,
     modifier: Modifier = Modifier
 ) {
@@ -335,7 +343,7 @@ private fun ContentWindSpeedAndCloudiness(
         modifier = modifier
             .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
             .padding(2.dp)
-            .background(brush = background)
+            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
     ) {
         Row(
             modifier = Modifier
@@ -384,7 +392,7 @@ private fun ContentWindSpeedAndCloudiness(
 }
 
 @Composable
-private fun defineBackgroundColor(momentDay: String): Brush {
+private fun defineBackgroundColorForScreen(momentDay: String): Brush {
     val background = when (momentDay) {
         stringResource(R.string.periodic_day_morning) -> {
             BlueToWhiteGradient
@@ -400,6 +408,16 @@ private fun defineBackgroundColor(momentDay: String): Brush {
 
     }
     return background
+}
+
+@Composable
+private fun defineBackgroundColorForLayoutComposable(background: Brush): Color {
+    val backgroundLayoutComposable: Color = when (background) {
+        BlueToWhiteGradient -> Blue
+        BrownToWhiteGradient -> BrownAfternoon
+        else -> BlueNight
+    }
+    return backgroundLayoutComposable
 }
 
 @Composable
