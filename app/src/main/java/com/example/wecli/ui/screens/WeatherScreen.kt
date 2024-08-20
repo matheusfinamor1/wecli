@@ -2,16 +2,11 @@
 
 package com.example.wecli.ui.screens
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,42 +45,51 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.wecli.R
+import com.example.wecli.core.LocationUserManager
 import com.example.wecli.ui.state.WeatherUiState
+import com.example.wecli.ui.theme.Blue
+import com.example.wecli.ui.theme.BlueNight
 import com.example.wecli.ui.theme.BlueNightToWhiteGradient
 import com.example.wecli.ui.theme.BlueToWhiteGradient
+import com.example.wecli.ui.theme.BrownAfternoon
 import com.example.wecli.ui.theme.BrownToWhiteGradient
 import com.example.wecli.ui.theme.White
 import com.example.wecli.ui.theme.openSansFontFamily
 import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 
 @Composable
 fun WeatherScreen(
     fusedLocationClient: FusedLocationProviderClient,
     viewModel: WeatherViewModel,
     uiState: WeatherUiState,
-    momentDay: String
+    momentDay: String,
+    locationManager: LocationUserManager
 ) {
     val context = LocalContext.current
     val showPermissionRequest = remember { mutableStateOf(false) }
-    RequestPermission(context, showPermissionRequest, fusedLocationClient, viewModel)
+    locationManager.RequestPermission(
+        context,
+        showPermissionRequest,
+        fusedLocationClient,
+        onGetCurrentLocationSuccess = { latitude, longitude ->
+            viewModel.getWeatherUser(latitude, longitude)
+        },
+        onGetCurrentLocationFailure = { exception ->
+            Log.e("Response", "WeatherScreen: $exception")
+        }
+    )
     ShowDialog(showPermissionRequest, context)
     ContentScreen(uiState, momentDay)
 }
 
 @Composable
 private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
-    val background = defineBackgroundColor(momentDay)
+    val background = defineBackgroundColorForScreen(momentDay)
     val scrollState = rememberScrollState()
 
     when (uiState.isLoading) {
@@ -104,6 +108,8 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
         }
 
         false -> {
+            val backgroundLayoutComposable: Color =
+                defineBackgroundColorForLayoutComposable(background)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -118,7 +124,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                 Spacer(Modifier.height(32.dp))
                 ContentTemp(uiState)
                 Spacer(Modifier.height(32.dp))
-                ContentDescriptionAndThermalSensation(background, uiState)
+                ContentDescriptionAndThermalSensation(uiState, backgroundLayoutComposable)
                 Spacer(Modifier.height(64.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -126,7 +132,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     ContentHumidityAndAtmosphericPressure(
-                        background,
+                        backgroundLayoutComposable,
                         uiState,
                         Modifier
                             .weight(1f)
@@ -134,7 +140,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     ContentWindSpeedAndCloudiness(
-                        background,
+                        backgroundLayoutComposable,
                         uiState,
                         Modifier
                             .weight(1f)
@@ -184,7 +190,9 @@ private fun ContentLocation(uiState: WeatherUiState) {
 }
 
 @Composable
-private fun ContentTemp(uiState: WeatherUiState) {
+private fun ContentTemp(
+    uiState: WeatherUiState
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -214,15 +222,15 @@ private fun ContentTemp(uiState: WeatherUiState) {
 
 @Composable
 private fun ContentDescriptionAndThermalSensation(
-    background: Brush,
-    uiState: WeatherUiState
+    uiState: WeatherUiState,
+    backgroundLayoutComposable: Color
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
-            .background(brush = background),
+            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -231,7 +239,7 @@ private fun ContentDescriptionAndThermalSensation(
         ) {
             GlideImage(
                 model = "https://openweathermap.org/img/wn/${uiState.icon}@2x.png",
-                contentDescription = null
+                contentDescription = null,
             )
             uiState.description?.let { description ->
                 Text(
@@ -267,7 +275,7 @@ private fun ContentDescriptionAndThermalSensation(
 
 @Composable
 private fun ContentHumidityAndAtmosphericPressure(
-    background: Brush,
+    backgroundLayoutComposable: Color,
     uiState: WeatherUiState,
     modifier: Modifier = Modifier
 ) {
@@ -275,7 +283,7 @@ private fun ContentHumidityAndAtmosphericPressure(
         modifier = modifier
             .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
             .padding(2.dp)
-            .background(brush = background)
+            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
     ) {
         Row(
             modifier = Modifier
@@ -326,7 +334,7 @@ private fun ContentHumidityAndAtmosphericPressure(
 
 @Composable
 private fun ContentWindSpeedAndCloudiness(
-    background: Brush,
+    backgroundLayoutComposable: Color,
     uiState: WeatherUiState,
     modifier: Modifier = Modifier
 ) {
@@ -334,7 +342,7 @@ private fun ContentWindSpeedAndCloudiness(
         modifier = modifier
             .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
             .padding(2.dp)
-            .background(brush = background)
+            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
     ) {
         Row(
             modifier = Modifier
@@ -383,7 +391,7 @@ private fun ContentWindSpeedAndCloudiness(
 }
 
 @Composable
-private fun defineBackgroundColor(momentDay: String): Brush {
+private fun defineBackgroundColorForScreen(momentDay: String): Brush {
     val background = when (momentDay) {
         stringResource(R.string.periodic_day_morning) -> {
             BlueToWhiteGradient
@@ -399,6 +407,16 @@ private fun defineBackgroundColor(momentDay: String): Brush {
 
     }
     return background
+}
+
+@Composable
+private fun defineBackgroundColorForLayoutComposable(background: Brush): Color {
+    val backgroundLayoutComposable: Color = when (background) {
+        BlueToWhiteGradient -> Blue
+        BrownToWhiteGradient -> BrownAfternoon
+        else -> BlueNight
+    }
+    return backgroundLayoutComposable
 }
 
 @Composable
@@ -431,7 +449,7 @@ private fun ShowDialog(
                         contentColor = Color.Black
                     )
                 ) {
-                    Text("Ir para configurações")
+                    Text(stringResource(R.string.message_go_config))
                 }
             },
             dismissButton = {
@@ -450,90 +468,3 @@ private fun ShowDialog(
     }
 }
 
-@Composable
-private fun RequestPermission(
-    context: Context,
-    showPermissionRequest: MutableState<Boolean>,
-    fusedLocationClient: FusedLocationProviderClient,
-    viewModel: WeatherViewModel
-) {
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted.not()) {
-                showPermissionRequest.value = true
-            } else {
-                getCurrentLocation(
-                    fusedLocationClient,
-                    onGetCurrentLocationSuccess = {
-                        viewModel.getWeatherUser(it.second, it.first)
-                    },
-                    onGetCurrentLocationFailure = {
-                        Log.d(
-                            "Response",
-                            "RequestPermission: $it"
-                        )
-                    },
-                    context = context
-                )
-            }
-        }
-    )
-    LifecycleEventEffect(event = Lifecycle.Event.ON_START) {
-        ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        )
-            .let { isGranted ->
-                if (isGranted == PackageManager.PERMISSION_DENIED)
-                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                else
-                    getCurrentLocation(
-                        fusedLocationClient,
-                        onGetCurrentLocationSuccess = {
-                            viewModel.getWeatherUser(it.second, it.first)
-                        },
-                        onGetCurrentLocationFailure = {
-                            Log.d(
-                                "Response",
-                                "RequestPermission: $it"
-                            )
-                        },
-                        context = context
-                    )
-            }
-
-    }
-}
-
-@SuppressLint("MissingPermission")
-private fun getCurrentLocation(
-    fusedLocationClient: FusedLocationProviderClient,
-    onGetCurrentLocationSuccess: (Pair<Double, Double>) -> Unit,
-    onGetCurrentLocationFailure: (Exception) -> Unit,
-    priority: Boolean = true,
-    context: Context
-) {
-    val accuracy = if (priority) Priority.PRIORITY_HIGH_ACCURACY
-    else Priority.PRIORITY_BALANCED_POWER_ACCURACY
-    if (areLocationPermissionsGranted(context)) {
-        fusedLocationClient.getCurrentLocation(
-            accuracy, CancellationTokenSource().token,
-        ).addOnSuccessListener { location ->
-            location?.let {
-                onGetCurrentLocationSuccess(Pair(it.latitude, it.longitude))
-            }
-        }.addOnFailureListener { exception ->
-            onGetCurrentLocationFailure(exception)
-        }
-    }
-}
-
-
-private fun areLocationPermissionsGranted(context: Context): Boolean {
-    return (ActivityCompat.checkSelfPermission(
-        context, Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED)
-}
