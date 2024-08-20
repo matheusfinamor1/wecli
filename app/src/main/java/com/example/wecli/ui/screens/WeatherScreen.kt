@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import com.example.wecli.R
 import com.example.wecli.core.LocationUserManager
 import com.example.wecli.ui.state.WeatherUiState
