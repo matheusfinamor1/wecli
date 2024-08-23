@@ -4,8 +4,8 @@ import com.example.wecli.core.LocationUserManager
 import com.example.wecli.repository.hourRepository.HourRepository
 import com.example.wecli.repository.hourRepository.HourRepositoryImpl
 import com.example.wecli.repository.weatherRepository.WeatherRepositoryImpl
-import com.example.wecli.service.WeatherService
-import com.example.wecli.service.WeatherServiceImpl
+import com.example.wecli.service.weatherCurrentService.WeatherService
+import com.example.wecli.service.weatherCurrentService.WeatherServiceImpl
 import com.example.wecli.ui.viewmodel.WeatherViewModel
 import com.example.wecli.useCase.GetMomentDayUseCase
 import com.example.wecli.useCase.GetWeatherUserUseCase

@@ -1,4 +1,4 @@
-package com.example.wecli.data
+package com.example.wecli.data.weatherCurrentData
 
 import kotlinx.serialization.Serializable
 

@@ -1,7 +1,7 @@
-package com.example.wecli.service
+package com.example.wecli.service.weatherCurrentService
 
 import com.example.wecli.BuildConfig
-import com.example.wecli.data.WeatherResponse
+import com.example.wecli.data.weatherCurrentData.WeatherResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

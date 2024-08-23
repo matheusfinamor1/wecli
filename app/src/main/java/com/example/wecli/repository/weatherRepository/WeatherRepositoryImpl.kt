@@ -1,8 +1,8 @@
 package com.example.wecli.repository.weatherRepository
 
-import com.example.wecli.data.WeatherResponse
+import com.example.wecli.data.weatherCurrentData.WeatherResponse
 import com.example.wecli.response.Resource
-import com.example.wecli.service.WeatherService
+import com.example.wecli.service.weatherCurrentService.WeatherService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

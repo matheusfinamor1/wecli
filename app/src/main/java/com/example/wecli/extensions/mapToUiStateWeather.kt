@@ -1,6 +1,6 @@
 package com.example.wecli.extensions
 
-import com.example.wecli.data.WeatherResponse
+import com.example.wecli.data.weatherCurrentData.WeatherResponse
 import com.example.wecli.ui.state.WeatherUiState
 
 fun WeatherResponse.toUiState(): WeatherUiState {
