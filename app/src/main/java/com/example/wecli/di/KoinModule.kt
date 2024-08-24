@@ -1,12 +1,16 @@
 package com.example.wecli.di
 
 import com.example.wecli.core.LocationUserManager
+import com.example.wecli.repository.forecastRepository.ForecastRepositoryImpl
 import com.example.wecli.repository.hourRepository.HourRepository
 import com.example.wecli.repository.hourRepository.HourRepositoryImpl
 import com.example.wecli.repository.weatherRepository.WeatherRepositoryImpl
+import com.example.wecli.service.forecastService.ForecastService
+import com.example.wecli.service.forecastService.ForecastServiceImpl
 import com.example.wecli.service.weatherCurrentService.WeatherService
 import com.example.wecli.service.weatherCurrentService.WeatherServiceImpl
 import com.example.wecli.ui.viewmodel.WeatherViewModel
+import com.example.wecli.useCase.GetForecastUseCase
 import com.example.wecli.useCase.GetMomentDayUseCase
 import com.example.wecli.useCase.GetWeatherUserUseCase
 import io.ktor.client.HttpClient
@@ -24,12 +28,15 @@ import javax.net.ssl.SSLContext
 
 val appModules = module {
     single<WeatherRepositoryImpl> { WeatherRepositoryImpl(get()) }
+    single<ForecastRepositoryImpl> {ForecastRepositoryImpl(get())}
     single { GetMomentDayUseCase(get()) }
     single { GetWeatherUserUseCase(get()) }
+    single {GetForecastUseCase(get())}
     single<WeatherService> { WeatherServiceImpl(get()) }
+    single<ForecastService> {ForecastServiceImpl(get())}
     single<HourRepository> { HourRepositoryImpl() }
     single { LocationUserManager(get()) }
-    viewModel { WeatherViewModel(get(), get()) }
+    viewModel { WeatherViewModel(get(), get(), get()) }
 }
 
 val networkModule = module {

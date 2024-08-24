@@ -37,6 +37,7 @@ class LocationUserManager(
                         fusedLocationClient,
                         onGetCurrentLocationSuccess = {
                             onGetCurrentLocationSuccess(it.second, it.first)
+
                         },
                         onGetCurrentLocationFailure = {
                             onGetCurrentLocationFailure(it)

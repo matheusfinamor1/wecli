@@ -78,6 +78,7 @@ fun WeatherScreen(
         fusedLocationClient,
         onGetCurrentLocationSuccess = { latitude, longitude ->
             viewModel.getWeatherUser(latitude, longitude)
+            viewModel.getForecast(longitude, latitude)
         },
         onGetCurrentLocationFailure = { exception ->
             Log.e("Response", "WeatherScreen: $exception")
