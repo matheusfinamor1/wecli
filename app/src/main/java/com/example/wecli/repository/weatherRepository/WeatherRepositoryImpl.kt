@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.flow
 class WeatherRepositoryImpl(
     private val weatherService: WeatherService
 ) : WeatherRepository {
-    override fun fetchWeather(lon: Double, lat: Double): Flow<Resource<WeatherResponse>> = flow {
+    override fun fetchWeather(lat: Double, lon: Double): Flow<Resource<WeatherResponse>> = flow {
         emit(Resource.Loading())
         try {
-            val weather = weatherService.fetchWeather(lon, lat)
+            val weather = weatherService.fetchWeather(lat, lon)
             emit(Resource.Success(weather))
         } catch (e: Exception) {
             emit(Resource.Error(e.message.toString()))

@@ -77,8 +77,8 @@ fun WeatherScreen(
         showPermissionRequest,
         fusedLocationClient,
         onGetCurrentLocationSuccess = { latitude, longitude ->
-            viewModel.getWeatherUser(latitude, longitude)
-            viewModel.getForecast(longitude, latitude)
+            viewModel.getCombinedWeather(latitude,longitude)
+
         },
         onGetCurrentLocationFailure = { exception ->
             Log.e("Response", "WeatherScreen: $exception")
@@ -238,10 +238,17 @@ private fun ContentDescriptionAndThermalSensation(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            GlideImage(
-                model = "https://openweathermap.org/img/wn/${uiState.icon}@2x.png",
-                contentDescription = null,
-            )
+            uiState.icon.let {
+                if(it != null){
+                    GlideImage(
+                        model = "https://openweathermap.org/img/wn/${it}@2x.png",
+                        contentDescription = null,
+                    )
+                }else{
+                    CircularProgressIndicator()
+                }
+            }
+
             uiState.description?.let { description ->
                 Text(
                     text = description.replaceFirstChar { it.uppercase() },

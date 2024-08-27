@@ -5,5 +5,5 @@ import com.example.wecli.response.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
-    fun fetchWeather(lon: Double, lat: Double): Flow<Resource<WeatherResponse>>
+    fun fetchWeather(lat: Double, lon: Double): Flow<Resource<WeatherResponse>>
 }

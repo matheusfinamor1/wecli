@@ -10,7 +10,7 @@ class WeatherServiceImpl(
     private val client: HttpClient
 ) : WeatherService {
     private val apiKey = BuildConfig.apiKey
-    override suspend fun fetchWeather(lon: Double, lat: Double): WeatherResponse =
+    override suspend fun fetchWeather(lat: Double, lon: Double): WeatherResponse =
     client.get("$BASE_URL?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=$LANGUAGE&units=$UNITS").body()
 
     companion object {

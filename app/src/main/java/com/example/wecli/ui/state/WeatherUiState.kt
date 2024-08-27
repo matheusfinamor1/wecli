@@ -11,6 +11,7 @@ data class WeatherUiState(
     val cloudsAll: Int? = null,
     val country: String? = null,
     val name: String? = null,
+    val forecastCnt: Int? = null,
     val error: String? = null,
     val isLoading: Boolean = true,
     val icon: String? = null

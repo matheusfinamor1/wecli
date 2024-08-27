@@ -1,4 +1,4 @@
-package com.example.wecli.useCase
+package com.example.wecli.useCase.momentDayUseCase
 
 import com.example.wecli.repository.hourRepository.HourRepository
 import kotlinx.coroutines.flow.Flow
