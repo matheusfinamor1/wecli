@@ -1,9 +1,11 @@
 package com.example.wecli.di
 
 import com.example.wecli.core.LocationUserManager
+import com.example.wecli.repository.forecastRepository.ForecastRepository
 import com.example.wecli.repository.forecastRepository.ForecastRepositoryImpl
 import com.example.wecli.repository.hourRepository.HourRepository
 import com.example.wecli.repository.hourRepository.HourRepositoryImpl
+import com.example.wecli.repository.weatherRepository.WeatherRepository
 import com.example.wecli.repository.weatherRepository.WeatherRepositoryImpl
 import com.example.wecli.service.forecastService.ForecastService
 import com.example.wecli.service.forecastService.ForecastServiceImpl
@@ -28,8 +30,8 @@ import org.koin.dsl.module
 import javax.net.ssl.SSLContext
 
 val appModules = module {
-    single<WeatherRepositoryImpl> { WeatherRepositoryImpl(get()) }
-    single<ForecastRepositoryImpl> { ForecastRepositoryImpl(get()) }
+    single<WeatherRepository> { WeatherRepositoryImpl(get()) }
+    single<ForecastRepository> { ForecastRepositoryImpl(get()) }
     single { GetMomentDayUseCase(get()) }
     single { GetWeatherUserUseCase(get()) }
     single { GetCombinedWeatherUseCase(get(), get()) }
