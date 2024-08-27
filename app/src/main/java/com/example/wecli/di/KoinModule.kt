@@ -32,7 +32,6 @@ val appModules = module {
     single<ForecastRepositoryImpl> { ForecastRepositoryImpl(get()) }
     single { GetMomentDayUseCase(get()) }
     single { GetWeatherUserUseCase(get()) }
-    single { GetForecastUseCase(get()) }
     single { GetCombinedWeatherUseCase(get(), get()) }
     single { GetForecastUseCase(get()) }
     single<WeatherService> { WeatherServiceImpl(get()) }
