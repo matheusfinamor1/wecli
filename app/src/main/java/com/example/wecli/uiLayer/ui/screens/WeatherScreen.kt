@@ -10,8 +10,10 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -77,7 +80,7 @@ fun WeatherScreen(
         showPermissionRequest,
         fusedLocationClient,
         onGetCurrentLocationSuccess = { latitude, longitude ->
-            viewModel.getCombinedWeather(latitude,longitude)
+            viewModel.getCombinedWeather(latitude, longitude)
 
         },
         onGetCurrentLocationFailure = { exception ->
@@ -91,7 +94,8 @@ fun WeatherScreen(
 @Composable
 private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
     val background = defineBackgroundColorForScreen(momentDay)
-    val scrollState = rememberScrollState()
+    val scrollStateScreen = rememberScrollState()
+    val scrollStateForecast = rememberScrollState()
 
     when (uiState.isLoading) {
         true -> {
@@ -99,7 +103,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(brush = background)
-                    .verticalScroll(scrollState),
+                    .verticalScroll(scrollStateScreen),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
 
@@ -115,7 +119,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(brush = background)
-                    .verticalScroll(scrollState),
+                    .verticalScroll(scrollStateScreen),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
 
@@ -239,12 +243,12 @@ private fun ContentDescriptionAndThermalSensation(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             uiState.icon.let {
-                if(it != null){
+                if (it != null) {
                     GlideImage(
                         model = "https://openweathermap.org/img/wn/${it}@2x.png",
                         contentDescription = null,
                     )
-                }else{
+                } else {
                     CircularProgressIndicator()
                 }
             }

@@ -11,8 +11,44 @@ data class WeatherUiState(
     val cloudsAll: Int? = null,
     val country: String? = null,
     val name: String? = null,
-    val forecastCnt: Int? = null,
+    val forecastList: List<ListForecastUiState>? = emptyList(),
+    val forecastCitySunrise: String? = null,
+    val forecastCitySunset: String? = null,
     val error: String? = null,
     val isLoading: Boolean = true,
     val icon: String? = null
 )
+
+data class ListForecastUiState(
+    val mainForecastUiState: MainForecastUiState? = null,
+    val weatherForecastUiState: List<WeatherForecastUiState>? = emptyList(),
+    val cloudsForecastUiState: CloudsForecastUiState? = null,
+    val windForecastUiState: WindForecastUiState? = null,
+    val visibilityForecastUiState: Int? = null,
+    val podForecastUiState: String? = null,
+    val dtTxtForecastUiState: String? = null
+)
+
+data class MainForecastUiState(
+    val forecastMainTemp: Double? = null,
+    val forecastMainFeelsLike: Double? = null,
+    val forecastMainTempMin: Double? = null,
+    val forecastMainTempMax: Double? = null,
+    val forecastMainPressure: Int? = null,
+    val forecastMainHumidity: Int? = null
+)
+
+data class WeatherForecastUiState(
+    val forecastWeatherMain: String? = null,
+    val forecastWeatherDescription: String? = null,
+    val forecastWeatherIcon: String? = null
+)
+
+data class CloudsForecastUiState(
+    val forecastCloudsAll: Int? = null
+)
+
+data class WindForecastUiState(
+    val forecastWindSpeed: Double? = null
+)
+
