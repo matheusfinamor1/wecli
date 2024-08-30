@@ -26,14 +26,16 @@ data class ListForecastUiState(
     val windForecastUiState: WindForecastUiState? = null,
     val visibilityForecastUiState: Int? = null,
     val podForecastUiState: String? = null,
-    val dtTxtForecastUiState: String? = null
+    val dtTxtForecastUiState: String? = null,
+    val dataForecastUiState: String? = null,
+    val hourForecastUiState: String? = null
 )
 
 data class MainForecastUiState(
-    val forecastMainTemp: Double? = null,
-    val forecastMainFeelsLike: Double? = null,
-    val forecastMainTempMin: Double? = null,
-    val forecastMainTempMax: Double? = null,
+    val forecastMainTemp: Int? = null,
+    val forecastMainFeelsLike: Int? = null,
+    val forecastMainTempMin: Int? = null,
+    val forecastMainTempMax: Int? = null,
     val forecastMainPressure: Int? = null,
     val forecastMainHumidity: Int? = null
 )
@@ -49,6 +51,6 @@ data class CloudsForecastUiState(
 )
 
 data class WindForecastUiState(
-    val forecastWindSpeed: Double? = null
+    val forecastWindSpeed: Int? = null
 )
 

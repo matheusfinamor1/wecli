@@ -20,6 +20,6 @@ class ForecastServiceImpl(
             "https://api.openweathermap.org/data/2.5/forecast"
         private const val LANGUAGE = "pt_br"
         private const val UNITS = "metric"
-        private const val CNT = 2
+        private const val CNT = 40
     }
 }

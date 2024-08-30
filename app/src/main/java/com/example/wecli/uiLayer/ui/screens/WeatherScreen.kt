@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalGlideComposeApi::class)
+@file:OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 
 package com.example.wecli.uiLayer.ui.screens
 
@@ -21,15 +21,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults.colors
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +59,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.wecli.R
 import com.example.wecli.domainLayer.core.LocationUserManager
+import com.example.wecli.uiLayer.ui.state.ListForecastUiState
 import com.example.wecli.uiLayer.ui.state.WeatherUiState
 import com.example.wecli.uiLayer.ui.theme.Blue
 import com.example.wecli.uiLayer.ui.theme.BlueNight
@@ -60,7 +70,15 @@ import com.example.wecli.uiLayer.ui.theme.BrownToWhiteGradient
 import com.example.wecli.uiLayer.ui.theme.White
 import com.example.wecli.uiLayer.ui.theme.openSansFontFamily
 import com.example.wecli.uiLayer.ui.viewmodel.WeatherViewModel
+import com.example.wecli.uiLayer.utils.DateFormats
+import com.example.wecli.uiLayer.utils.formatter.toFormattedDate
+import com.example.wecli.uiLayer.utils.formatter.toFormattedNowDate
 import com.google.android.gms.location.FusedLocationProviderClient
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.TimeZone
 
 @Composable
 fun WeatherScreen(
@@ -92,8 +110,7 @@ fun WeatherScreen(
 private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
     val background = defineBackgroundColorForScreen(momentDay)
     val scrollStateScreen = rememberScrollState()
-    val scrollStateForecast = rememberScrollState()
-
+    CreateRememberDatePicker()
     when (uiState.isLoading) {
         true -> {
             Column(
@@ -112,6 +129,7 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
         false -> {
             val backgroundLayoutComposable: Color =
                 defineBackgroundColorForLayoutComposable(background)
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -121,13 +139,13 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                 horizontalAlignment = Alignment.CenterHorizontally
 
             ) {
-                Spacer(Modifier.height(64.dp))
+                Spacer(Modifier.height(32.dp))
                 ContentLocation(uiState)
-                Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(16.dp))
                 ContentTemp(uiState)
-                Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(16.dp))
                 ContentDescriptionAndThermalSensation(uiState, backgroundLayoutComposable)
-                Spacer(Modifier.height(64.dp))
+                Spacer(Modifier.height(32.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -149,9 +167,166 @@ private fun ContentScreen(uiState: WeatherUiState, momentDay: String) {
                             .padding(end = 6.dp)
                     )
                 }
-                Spacer(Modifier.height(64.dp))
+                Spacer(Modifier.height(32.dp))
+                DatePickerWithDialog()
+                LazyRow(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(uiState.forecastList?.size ?: 0) { index ->
+                        uiState.forecastList?.let {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize(0.5f)
+                                    .border(
+                                        color = Color.LightGray,
+                                        shape = ShapeDefaults.Small,
+                                        width = 2.dp
+                                    )
+                                    .padding(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = uiState.forecastList[index].dtTxtForecastUiState.toString()
+                                )
+                                Text(
+                                    text = uiState.forecastList[index].dataForecastUiState.toString()
+                                )
+                                Text(
+                                    text = uiState.forecastList[index].hourForecastUiState.toString()
+                                )
+                                ContentForecastMaxTemp(uiState.forecastList, index)
+                                ContentForecastMinTemp(uiState.forecastList, index)
+                            }
+                        }
+
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun CreateRememberDatePicker() {
+    rememberDatePickerState(
+        selectableDates = object : SelectableDates {
+            val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
+                val currentDate = ZonedDateTime.now(zoneId)
+                val fiveDaysRange = currentDate.plusDays(5)
+                return selectedDate.isBefore(fiveDaysRange) && selectedDate.isAfter(
+                    currentDate
+                )
+            }
+
+            override fun isSelectableYear(year: Int): Boolean {
+                return true
+            }
+        }
+    )
+}
+
+@Composable
+private fun DatePickerWithDialog() {
+    val selectedData = remember { mutableStateOf(LocalDate.now().toFormattedNowDate()) }
+    val showDialog = remember { mutableStateOf(false) }
+
+    val datePickerState = rememberDatePickerState(
+        selectableDates = object : SelectableDates {
+            val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
+                val today = LocalDate.now(ZoneId.of(DateFormats.TIME_ZONE))
+                val fiveDaysRange = today.plusDays(5)
+                return !selectedDate.isBefore(today) && !selectedDate.isAfter(fiveDaysRange)
+            }
+
+            override fun isSelectableYear(year: Int): Boolean {
+                return true
+            }
+        }
+    )
+
+    LaunchedEffect(datePickerState.selectedDateMillis) {
+        datePickerState.selectedDateMillis?.let {
+            selectedData.value = it.toFormattedDate()
+        }
+    }
+
+    Button(onClick = { showDialog.value = true }) {
+        Text(
+            text = selectedData.value,
+            color = Color.Black
+        )
+    }
+
+    if (showDialog.value) {
+        DatePickerDialog(
+            onDismissRequest = { showDialog.value = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let {
+                        selectedData.value = it.toFormattedDate()
+                    }
+                    showDialog.value = false
+                }) {
+                    Text(text = "Confirmar", color = Color.Black)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text(text = "Cancelar", color = Color.Black)
+                }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = colors(
+                    titleContentColor = Color.Black,
+                    todayContentColor = Color.DarkGray,
+                    selectedDayContainerColor = Color.LightGray,
+                    selectedDayContentColor = Color.Black,
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContentForecastMinTemp(
+    forecastList: List<ListForecastUiState>,
+    index: Int
+) {
+    Row(
+        modifier = Modifier.wrapContentWidth()
+    ) {
+        Image(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = R.drawable.icon_thermometer_down),
+            contentDescription = null
+        )
+        Text(text = "${forecastList[index].mainForecastUiState?.forecastMainTempMin}")
+    }
+}
+
+@Composable
+private fun ContentForecastMaxTemp(
+    forecastList: List<ListForecastUiState>,
+    index: Int
+) {
+    Row(
+        modifier = Modifier.wrapContentWidth()
+    ) {
+        Image(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = R.drawable.icon_thermometer_up),
+            contentDescription = null
+        )
+        Text(text = "${forecastList[index].mainForecastUiState?.forecastMainTempMax}")
     }
 }
 

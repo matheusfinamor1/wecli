@@ -8,7 +8,9 @@ import com.example.wecli.uiLayer.ui.state.MainForecastUiState
 import com.example.wecli.uiLayer.ui.state.WeatherForecastUiState
 import com.example.wecli.uiLayer.ui.state.WeatherUiState
 import com.example.wecli.uiLayer.ui.state.WindForecastUiState
-import com.example.wecli.uiLayer.utils.formatter.DateFormatter
+import com.example.wecli.uiLayer.utils.formatter.DateFormatter.formatData
+import com.example.wecli.uiLayer.utils.formatter.DateFormatter.formatDataAndHour
+import com.example.wecli.uiLayer.utils.formatter.DateFormatter.formatHour
 
 fun Pair<WeatherResponse?, ForecastResponse?>.asModel(): WeatherUiState {
     val (weatherResource, forecastResource) = this
@@ -27,10 +29,10 @@ fun Pair<WeatherResponse?, ForecastResponse?>.asModel(): WeatherUiState {
 
         ListForecastUiState(
             mainForecastUiState = MainForecastUiState(
-                forecastMainTemp = forecastMain.temp,
-                forecastMainFeelsLike = forecastMain.feels_like,
-                forecastMainTempMin = forecastMain.temp_min,
-                forecastMainTempMax = forecastMain.temp_max,
+                forecastMainTemp = forecastMain.temp.toInt(),
+                forecastMainFeelsLike = forecastMain.feels_like.toInt(),
+                forecastMainTempMin = forecastMain.temp_min.toInt(),
+                forecastMainTempMax = forecastMain.temp_max.toInt(),
                 forecastMainPressure = forecastMain.pressure,
                 forecastMainHumidity = forecastMain.humidity
             ),
@@ -45,11 +47,13 @@ fun Pair<WeatherResponse?, ForecastResponse?>.asModel(): WeatherUiState {
                 forecastCloudsAll = forecastClouds.all
             ),
             windForecastUiState = WindForecastUiState(
-                forecastWindSpeed = forecastWind.speed
+                forecastWindSpeed = forecastWind.speed.toInt()
             ),
             visibilityForecastUiState = forecastItem.visibility,
             podForecastUiState = forecastItem.sys.pod,
-            dtTxtForecastUiState = DateFormatter.format(forecastItem.dt_txt)
+            dtTxtForecastUiState = forecastItem.dt_txt.formatDataAndHour(),
+            dataForecastUiState = forecastItem.dt_txt.formatData(),
+            hourForecastUiState = forecastItem.dt_txt.formatHour()
         )
     } ?: emptyList()
 
