@@ -2,9 +2,11 @@ package com.example.wecli.uiLayer.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wecli.uiLayer.ui.state.WeatherUiState
 import com.example.wecli.domainLayer.useCase.combinedWeatherUseCase.GetCombinedWeatherUseCase
 import com.example.wecli.domainLayer.useCase.momentDayUseCase.GetMomentDayUseCase
+import com.example.wecli.uiLayer.ui.state.ListForecastUiState
+import com.example.wecli.uiLayer.ui.state.WeatherUiState
+import io.ktor.client.request.forms.formData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +23,9 @@ class WeatherViewModel(
     private val _momentDay = MutableStateFlow("")
     val momentDay: StateFlow<String> = _momentDay.asStateFlow()
 
+    private val _listFilterDays = MutableStateFlow(WeatherUiState())
+    val listFilterDays: StateFlow<WeatherUiState> = _listFilterDays.asStateFlow()
+
     init {
         getMomentDay()
     }
@@ -28,7 +33,39 @@ class WeatherViewModel(
     fun getCombinedWeather(lat: Double, lon: Double) {
         viewModelScope.launch {
             getCombinedWeatherUseCase.invoke(lat, lon).collect {
-                _uiState.value = it.data ?: WeatherUiState()
+                _uiState.value = it.data?: WeatherUiState()
+                _listFilterDays.value = it.data ?: WeatherUiState()
+            }
+        }
+    }
+
+    fun filterDayForecast(day: String) {
+        viewModelScope.launch {
+            _listFilterDays.value = uiState.value.copy(
+                isLoading = true,
+                forecastList = uiState.value.forecastList
+            )
+            try {
+                if (day == "Todos"){
+                    val allData = uiState.value.forecastList
+                    _listFilterDays.value = uiState.value.copy(
+                        isLoading = false,
+                        forecastList = allData
+                    )
+                }else{
+                    val filteredForecastList = uiState.value.forecastList?.filter {
+                        it.dataForecastUiState == day
+                    } ?: emptyList()
+                    _listFilterDays.value = uiState.value.copy(
+                        isLoading = false,
+                        forecastList = filteredForecastList
+                    )
+                }
+            } catch (e: Exception) {
+                _listFilterDays.value = uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
             }
         }
     }
