@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -44,12 +45,13 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -61,6 +63,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.wecli.R
@@ -96,7 +99,7 @@ fun WeatherScreen(
 ) {
     val context = LocalContext.current
     val showPermissionRequest = remember { mutableStateOf(false) }
-    val filteredForecastList: WeatherUiState by viewModel.listFilterDays.collectAsState(initial = uiState)
+    val filteredForecastList: WeatherUiState by viewModel.listFilterDays.collectAsStateWithLifecycle()
 
     locationManager.RequestPermission(context,
         showPermissionRequest,
@@ -182,296 +185,13 @@ private fun ContentScreen(
                                 .padding(end = 6.dp)
                         )
                     }
-                    Spacer(Modifier.height(32.dp))
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        DatePickerWithDialog(viewModel)
-                    }
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(6.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        items(filteredForecastList.forecastList?.size ?: 0) { index ->
-                            filteredForecastList.forecastList?.let {
-                                ItemLazyRow(
-                                    it,
-                                    index,
-                                    onClick = { Log.d("Response", "Item ${it[index]} clicado") })
-
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                        }
-                    }
+                    Spacer(Modifier.height(16.dp))
+                    DateContent(viewModel)
+                    Spacer(Modifier.height(16.dp))
+                    ListForecastContent(filteredForecastList)
                 }
             }
-
         }
-    }
-}
-
-@Composable
-private fun ItemLazyRow(
-    it: List<ListForecastUiState>,
-    index: Int,
-    onClick: () -> Unit
-
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(0.5f)
-            .border(
-                color = Color.LightGray,
-                shape = ShapeDefaults.Small,
-                width = 2.dp
-            )
-            .padding(8.dp)
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            DateForecastContent(it, index)
-            Spacer(modifier = Modifier.width(6.dp))
-            HourForecastContent(it, index)
-        }
-        ForecastTempContent(it, index)
-        Text(
-            text = it[index].weatherForecastUiState?.get(0)?.forecastWeatherDescription.toString()
-                .replaceFirstChar {
-                    it.uppercase()
-                }
-        )
-    }
-}
-
-@Composable
-private fun HourForecastContent(
-    it: List<ListForecastUiState>,
-    index: Int
-) {
-    Row(
-        modifier = Modifier
-            .wrapContentSize()
-            .padding(6.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_schedule),
-            contentDescription = null,
-            modifier = Modifier
-                .size(18.dp)
-                .padding(end = 4.dp),
-        )
-        Text(
-            text = it[index].hourForecastUiState.toString(),
-        )
-    }
-}
-
-@Composable
-private fun DateForecastContent(
-    it: List<ListForecastUiState>,
-    index: Int
-) {
-    Row(
-        modifier = Modifier
-            .wrapContentSize()
-            .padding(6.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_calendar_foreground),
-            contentDescription = null,
-            modifier = Modifier
-                .size(18.dp)
-                .padding(end = 4.dp),
-        )
-        Text(
-            text = it[index].dataForecastUiState.toString(),
-        )
-    }
-}
-
-@Composable
-private fun ForecastTempContent(
-    it: List<ListForecastUiState>, index: Int
-) {
-    Row(
-        modifier = Modifier.wrapContentSize()
-    ) {
-        ContentForecastMaxTemp(it, index)
-        GlideImage(
-            model = "${ApiEndpoint.BASE_ENDPOINT_IMAGE}${
-                it[index].weatherForecastUiState?.get(
-                    0
-                )?.forecastWeatherIcon
-            }@2x.png", contentDescription = null
-        )
-        ContentForecastMinTemp(it, index)
-    }
-}
-
-@Composable
-private fun CreateRememberDatePicker() {
-    rememberDatePickerState(selectableDates = object : SelectableDates {
-        val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
-        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-            val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
-            val currentDate = ZonedDateTime.now(zoneId)
-            val fiveDaysRange = currentDate.plusDays(5)
-            return selectedDate.isBefore(fiveDaysRange) && selectedDate.isAfter(
-                currentDate
-            )
-        }
-
-        override fun isSelectableYear(year: Int): Boolean {
-            return true
-        }
-    })
-}
-
-@Composable
-private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
-    val selectedData = remember { mutableStateOf("Todos") }
-    val showDialog = remember { mutableStateOf(false) }
-
-    val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
-        val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
-        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-            val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
-            val today = LocalDate.now(ZoneId.of(DateFormats.TIME_ZONE))
-            val fiveDaysRange = today.plusDays(5)
-            return !selectedDate.isBefore(today) && !selectedDate.isAfter(fiveDaysRange)
-        }
-
-        override fun isSelectableYear(year: Int): Boolean {
-            return true
-        }
-    })
-
-    LaunchedEffect(datePickerState.selectedDateMillis) {
-        datePickerState.selectedDateMillis?.let {
-            selectedData.value = it.toFormattedDate()
-        }
-    }
-
-    Button(onClick = { showDialog.value = true }) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(R.drawable.icon_calendar),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(18.dp)
-                    .padding(end = 4.dp)
-            )
-            Text(
-                text = selectedData.value, color = Color.Black
-            )
-        }
-    }
-
-    if (showDialog.value) {
-        DatePickerDialog(onDismissRequest = { showDialog.value = false }, confirmButton = {
-            Row(modifier = Modifier.wrapContentWidth()) {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let {
-                        viewModel.filterDayForecast("Todos")
-                        selectedData.value = "Todos"
-                    }
-                    showDialog.value = false
-                }
-                ) {
-                    Text(text = "Todos os dias", color = Color.Black)
-                }
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let {
-                        viewModel.filterDayForecast(selectedData.value)
-                    }
-                    showDialog.value = false
-                }) {
-                    Text(text = "Confirmar", color = Color.Black)
-                }
-
-            }
-
-        }, dismissButton = {
-            TextButton(onClick = { showDialog.value = false }) {
-                Text(text = "Cancelar", color = Color.Black)
-            }
-        },
-            content = {
-                DatePicker(
-                    state = datePickerState, colors = colors(
-                        titleContentColor = Color.Black,
-                        todayContentColor = Color.DarkGray,
-                        selectedDayContainerColor = Color.LightGray,
-                        selectedDayContentColor = Color.Black,
-                    ),
-                    title = {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 4.dp, end = 4.dp, top = 12.dp, bottom = 4.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Selecione uma data para filtrar", fontSize = 18.sp)
-                        }
-                    }
-                )
-            }
-        )
-    }
-}
-
-@Composable
-private fun ContentForecastMinTemp(
-    forecastList: List<ListForecastUiState>, index: Int
-) {
-    Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .padding(6.dp)
-    ) {
-        Image(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = R.drawable.icon_thermometer_down),
-            contentDescription = null
-        )
-        Text(text = "${forecastList[index].mainForecastUiState?.forecastMainTempMin}")
-    }
-}
-
-@Composable
-private fun ContentForecastMaxTemp(
-    forecastList: List<ListForecastUiState>, index: Int
-) {
-    Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .padding(6.dp)
-    ) {
-        Image(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = R.drawable.icon_thermometer_up),
-            contentDescription = null
-        )
-        Text(text = "${forecastList[index].mainForecastUiState?.forecastMainTempMax}")
     }
 }
 
@@ -522,7 +242,10 @@ private fun ContentTemp(
         uiState.let {
             it.temp?.let { temp ->
                 Text(
-                    text = "$temp", fontSize = 64.sp, color = White, fontFamily = openSansFontFamily
+                    text = "$temp",
+                    fontSize = 64.sp,
+                    color = White,
+                    fontFamily = openSansFontFamily
                 )
             }
             Text(
@@ -546,8 +269,9 @@ private fun ContentDescriptionAndThermalSensation(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp)
+            .padding(16.dp)
+            .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 1.dp)
+            .clip(RoundedCornerShape(14.dp))
             .background(color = backgroundLayoutComposable.copy(alpha = 0.2f)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -572,7 +296,8 @@ private fun ContentDescriptionAndThermalSensation(
                     fontFamily = openSansFontFamily,
                     modifier = Modifier.fillMaxWidth(0.5f),
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    color = White
                 )
             }
         }
@@ -591,7 +316,8 @@ private fun ContentDescriptionAndThermalSensation(
                     modifier = Modifier
                         .wrapContentWidth()
                         .padding(end = 12.dp),
-                    maxLines = 1
+                    maxLines = 1,
+                    color = White
                 )
             }
         }
@@ -604,10 +330,11 @@ private fun ContentHumidityAndAtmosphericPressure(
 ) {
     Column(
         modifier = modifier
-            .border(
-                color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp
-            )
             .padding(2.dp)
+            .border(
+                color = Color.LightGray, shape = ShapeDefaults.ExtraSmall, width = 1.dp
+            )
+            .clip(RoundedCornerShape(3.dp))
             .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
     ) {
         Row(
@@ -627,7 +354,8 @@ private fun ContentHumidityAndAtmosphericPressure(
             uiState.pressure?.let {
                 Text(
                     text = "$it ${stringResource(R.string.uni_med_atm_press)}",
-                    fontFamily = openSansFontFamily
+                    fontFamily = openSansFontFamily,
+                    color = White
                 )
             }
         }
@@ -648,13 +376,14 @@ private fun ContentHumidityAndAtmosphericPressure(
             )
             uiState.humidity?.let {
                 Text(
-                    text = "$it${stringResource(R.string.percent)}", fontFamily = openSansFontFamily
+                    text = "$it${stringResource(R.string.percent)}",
+                    fontFamily = openSansFontFamily,
+                    color = White
                 )
             }
         }
     }
 }
-
 
 @Composable
 private fun ContentWindSpeedAndCloudiness(
@@ -662,10 +391,11 @@ private fun ContentWindSpeedAndCloudiness(
 ) {
     Column(
         modifier = modifier
-            .border(
-                color = Color.LightGray, shape = ShapeDefaults.Small, width = 2.dp
-            )
             .padding(2.dp)
+            .border(
+                color = Color.LightGray, shape = ShapeDefaults.ExtraSmall, width = 1.dp
+            )
+            .clip(RoundedCornerShape(3.dp))
             .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
     ) {
         Row(
@@ -686,6 +416,7 @@ private fun ContentWindSpeedAndCloudiness(
                 Text(
                     text = "$it ${stringResource(R.string.uni_med_veloc_km_h)}",
                     fontFamily = openSansFontFamily,
+                    color = White
                 )
             }
         }
@@ -706,7 +437,9 @@ private fun ContentWindSpeedAndCloudiness(
             )
             uiState.cloudsAll?.let {
                 Text(
-                    text = "$it${stringResource(R.string.percent)}", fontFamily = openSansFontFamily
+                    text = "$it${stringResource(R.string.percent)}",
+                    fontFamily = openSansFontFamily,
+                    color = White
                 )
             }
         }
@@ -714,32 +447,312 @@ private fun ContentWindSpeedAndCloudiness(
 }
 
 @Composable
-private fun defineBackgroundColorForScreen(momentDay: String): Brush {
-    val background = when (momentDay) {
-        stringResource(R.string.periodic_day_morning) -> {
-            BlueToWhiteGradient
-        }
-
-        stringResource(R.string.periodic_day_afternoon) -> {
-            BrownToWhiteGradient
-        }
-
-        else -> {
-            BlueNightToWhiteGradient
-        }
-
+private fun DateContent(viewModel: WeatherViewModel) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        DatePickerWithDialog(viewModel)
     }
-    return background
 }
 
 @Composable
-private fun defineBackgroundColorForLayoutComposable(background: Brush): Color {
-    val backgroundLayoutComposable: Color = when (background) {
-        BlueToWhiteGradient -> Blue
-        BrownToWhiteGradient -> BrownAfternoon
-        else -> BlueNight
+private fun ListForecastContent(filteredForecastList: WeatherUiState) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(6.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        items(filteredForecastList.forecastList?.size ?: 0) { index ->
+            filteredForecastList.forecastList?.let {
+                ItemLazyRow(
+                    it,
+                    index,
+                    onClick = { Log.d("Response", "Item ${it[index]} clicado") })
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+        }
     }
-    return backgroundLayoutComposable
+}
+
+@Composable
+private fun ItemLazyRow(
+    it: List<ListForecastUiState>,
+    index: Int,
+    onClick: () -> Unit
+
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(0.5f)
+            .border(
+                color = Color.LightGray,
+                shape = ShapeDefaults.Small,
+                width = 2.dp
+            )
+            .clip(RoundedCornerShape(8.dp))
+            .padding(2.dp)
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            DateForecastContent(it, index)
+            Spacer(modifier = Modifier.width(6.dp))
+            HourForecastContent(it, index)
+        }
+        ForecastTempContent(it, index)
+        Text(
+            text = it[index].weatherForecastUiState?.get(0)?.forecastWeatherDescription.toString()
+                .replaceFirstChar {
+                    it.uppercase()
+                },
+            fontFamily = openSansFontFamily,
+            color = White
+        )
+    }
+}
+
+@Composable
+private fun DateForecastContent(
+    it: List<ListForecastUiState>,
+    index: Int
+) {
+    Row(
+        modifier = Modifier
+            .wrapContentSize()
+            .padding(6.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_calendar_foreground),
+            contentDescription = null,
+            modifier = Modifier
+                .size(18.dp)
+                .padding(end = 4.dp),
+        )
+        Text(
+            text = it[index].dataForecastUiState.toString(),
+            fontFamily = openSansFontFamily,
+            color = White
+        )
+    }
+}
+
+@Composable
+private fun HourForecastContent(
+    it: List<ListForecastUiState>,
+    index: Int
+) {
+    Row(
+        modifier = Modifier
+            .wrapContentSize()
+            .padding(6.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_schedule),
+            contentDescription = null,
+            modifier = Modifier
+                .size(18.dp)
+                .padding(end = 4.dp),
+        )
+        Text(
+            text = it[index].hourForecastUiState.toString(),
+            fontFamily = openSansFontFamily,
+            color = White
+        )
+    }
+}
+
+@Composable
+private fun ForecastTempContent(
+    it: List<ListForecastUiState>, index: Int
+) {
+    Row(
+        modifier = Modifier.wrapContentSize()
+    ) {
+        ContentForecastMaxTemp(it, index)
+        GlideImage(
+            model = "${ApiEndpoint.BASE_ENDPOINT_IMAGE}${
+                it[index].weatherForecastUiState?.get(
+                    0
+                )?.forecastWeatherIcon
+            }@2x.png", contentDescription = null
+        )
+        ContentForecastMinTemp(it, index)
+    }
+}
+
+@Composable
+private fun ContentForecastMinTemp(
+    forecastList: List<ListForecastUiState>, index: Int
+) {
+    Row(
+        modifier = Modifier
+            .wrapContentWidth()
+            .padding(6.dp)
+    ) {
+        Image(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = R.drawable.icon_thermometer_down),
+            contentDescription = null
+        )
+        Text(
+            text = "${forecastList[index].mainForecastUiState?.forecastMainTempMin}",
+            fontFamily = openSansFontFamily,
+            color = White
+        )
+    }
+}
+
+@Composable
+private fun ContentForecastMaxTemp(
+    forecastList: List<ListForecastUiState>, index: Int
+) {
+    Row(
+        modifier = Modifier
+            .wrapContentWidth()
+            .padding(6.dp)
+    ) {
+        Image(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = R.drawable.icon_thermometer_up),
+            contentDescription = null
+        )
+        Text(
+            text = "${forecastList[index].mainForecastUiState?.forecastMainTempMax}",
+            fontFamily = openSansFontFamily,
+            color = White
+        )
+    }
+}
+
+@Composable
+private fun CreateRememberDatePicker() {
+    rememberDatePickerState(selectableDates = object : SelectableDates {
+        val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
+        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+            val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
+            val currentDate = ZonedDateTime.now(zoneId)
+            val fiveDaysRange = currentDate.plusDays(5)
+            return selectedDate.isBefore(fiveDaysRange) && selectedDate.isAfter(
+                currentDate
+            )
+        }
+
+        override fun isSelectableYear(year: Int): Boolean {
+            return true
+        }
+    })
+}
+
+@Composable
+private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
+    val selectedData = rememberSaveable { mutableStateOf("Todos") }
+    val showDialog = remember { mutableStateOf(false) }
+
+    val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
+        val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
+        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+            val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
+            val today = LocalDate.now(ZoneId.of(DateFormats.TIME_ZONE))
+            val fiveDaysRange = today.plusDays(5)
+            return !selectedDate.isBefore(today) && !selectedDate.isAfter(fiveDaysRange)
+        }
+
+        override fun isSelectableYear(year: Int): Boolean {
+            return true
+        }
+    })
+
+    LaunchedEffect(datePickerState.selectedDateMillis) {
+        datePickerState.selectedDateMillis?.let {
+            selectedData.value = it.toFormattedDate()
+        }
+    }
+
+    Button(
+        onClick = { showDialog.value = true },
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(R.drawable.icon_calendar),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(18.dp)
+                    .padding(end = 4.dp)
+            )
+            Text(
+                text = selectedData.value, color = Color.Black
+            )
+        }
+    }
+
+    if (showDialog.value) {
+        DatePickerDialog(onDismissRequest = { showDialog.value = false }, confirmButton = {
+            Row(modifier = Modifier.wrapContentWidth()) {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let {
+                        viewModel.filterDayForecast("Todos")
+                        selectedData.value = "Todos"
+                    }
+                    showDialog.value = false
+                }
+                ) {
+                    Text(text = stringResource(R.string.text_all_days), color = Color.Black)
+                }
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let {
+                        viewModel.filterDayForecast(selectedData.value)
+                    }
+                    showDialog.value = false
+                }) {
+                    Text(text = stringResource(R.string.text_confirm), color = Color.Black)
+                }
+
+            }
+
+        }, dismissButton = {
+            TextButton(onClick = { showDialog.value = false }) {
+                Text(text = stringResource(R.string.text_cancel), color = Color.Black)
+            }
+        },
+            content = {
+                DatePicker(
+                    state = datePickerState, colors = colors(
+                        titleContentColor = Color.Black,
+                        todayContentColor = Color.DarkGray,
+                        selectedDayContainerColor = Color.LightGray,
+                        selectedDayContentColor = Color.Black,
+                    ),
+                    title = {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 4.dp, end = 4.dp, top = 12.dp, bottom = 4.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(stringResource(R.string.text_select_data), fontSize = 18.sp)
+                        }
+                    }
+                )
+            }
+        )
+    }
 }
 
 @Composable
@@ -782,3 +795,31 @@ private fun ShowDialog(
     }
 }
 
+@Composable
+private fun defineBackgroundColorForScreen(momentDay: String): Brush {
+    val background = when (momentDay) {
+        stringResource(R.string.periodic_day_morning) -> {
+            BlueToWhiteGradient
+        }
+
+        stringResource(R.string.periodic_day_afternoon) -> {
+            BrownToWhiteGradient
+        }
+
+        else -> {
+            BlueNightToWhiteGradient
+        }
+
+    }
+    return background
+}
+
+@Composable
+private fun defineBackgroundColorForLayoutComposable(background: Brush): Color {
+    val backgroundLayoutComposable: Color = when (background) {
+        BlueToWhiteGradient -> Blue
+        BrownToWhiteGradient -> BrownAfternoon
+        else -> BlueNight
+    }
+    return backgroundLayoutComposable
+}

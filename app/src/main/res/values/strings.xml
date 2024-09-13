@@ -10,4 +10,9 @@
     <string name="message_aut_location">Para um bom uso do aplicativo, é necessaria a autorização do uso da localização do seu dispositivo.</string>
     <string name="message_go_config">Ir para configurações</string>
     <string name="message_close">Fechar</string>
+    <string name="text_all">Todos</string>
+    <string name="text_all_days">Todos os dias</string>
+    <string name="text_confirm">Confirmar</string>
+    <string name="text_cancel">Cancelar</string>
+    <string name="text_select_data">Selecione uma data para filtrar</string>
 </resources>
