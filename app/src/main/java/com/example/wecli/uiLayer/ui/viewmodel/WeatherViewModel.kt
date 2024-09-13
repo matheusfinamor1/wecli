@@ -33,8 +33,15 @@ class WeatherViewModel(
     fun getCombinedWeather(lat: Double, lon: Double) {
         viewModelScope.launch {
             getCombinedWeatherUseCase.invoke(lat, lon).collect {
-                _uiState.value = it.data?: WeatherUiState()
-                _listFilterDays.value = it.data ?: WeatherUiState()
+                if(_listFilterDays.value.forecastList?.size == 0){
+                    _uiState.value = it.data!!
+                    _listFilterDays.value = it.data
+                }else{
+                    _listFilterDays.value = uiState.value.copy(
+                        isLoading = false,
+                        forecastList = _listFilterDays.value.forecastList
+                    )
+                }
             }
         }
     }

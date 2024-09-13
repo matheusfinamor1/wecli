@@ -49,6 +49,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -99,9 +100,7 @@ fun WeatherScreen(
 ) {
     val context = LocalContext.current
     val showPermissionRequest = remember { mutableStateOf(false) }
-    val filteredForecastList: WeatherUiState by viewModel.listFilterDays.collectAsState(
-        initial = uiState
-    )
+    val filteredForecastList: WeatherUiState by viewModel.listFilterDays.collectAsStateWithLifecycle()
 
     locationManager.RequestPermission(context,
         showPermissionRequest,
@@ -661,7 +660,7 @@ private fun CreateRememberDatePicker() {
 
 @Composable
 private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
-    val selectedData = remember { mutableStateOf("Todos") }
+    val selectedData = rememberSaveable { mutableStateOf("Todos") }
     val showDialog = remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
