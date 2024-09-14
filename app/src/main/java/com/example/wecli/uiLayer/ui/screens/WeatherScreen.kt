@@ -332,7 +332,7 @@ private fun ContentHumidityAndAtmosphericPressure(
         modifier = modifier
             .padding(2.dp)
             .border(
-                color = Color.LightGray, shape = ShapeDefaults.ExtraSmall, width = 1.dp
+                color = Color.LightGray, shape = ShapeDefaults.Small, width = 1.dp
             )
             .clip(RoundedCornerShape(3.dp))
             .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
@@ -393,7 +393,7 @@ private fun ContentWindSpeedAndCloudiness(
         modifier = modifier
             .padding(2.dp)
             .border(
-                color = Color.LightGray, shape = ShapeDefaults.ExtraSmall, width = 1.dp
+                color = Color.LightGray, shape = ShapeDefaults.Small, width = 1.dp
             )
             .clip(RoundedCornerShape(3.dp))
             .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
