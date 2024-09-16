@@ -68,6 +68,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.wecli.R
 import com.example.wecli.domainLayer.core.LocationUserManager
+import com.example.wecli.uiLayer.ui.components.ItemContentWeatherCurrent
 import com.example.wecli.uiLayer.ui.state.ListForecastUiState
 import com.example.wecli.uiLayer.ui.state.WeatherUiState
 import com.example.wecli.uiLayer.ui.theme.Blue
@@ -169,20 +170,39 @@ private fun ContentScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ContentHumidityAndAtmosphericPressure(
-                            backgroundLayoutComposable,
-                            uiState,
-                            Modifier
+                        ItemContentWeatherCurrent(
+                            background = backgroundLayoutComposable,
+                            dataFirstLine = Triple(
+                                R.drawable.icon_pressao_atm,
+                                uiState.pressure,
+                                stringResource(R.string.uni_med_atm_press)
+                            ),
+                            dataSecondLine = Triple(
+                                R.drawable.icon_umidade,
+                                uiState.humidity,
+                                stringResource(R.string.percent)
+                            ),
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(start = 6.dp)
                         )
                         Spacer(modifier = Modifier.width(16.dp))
-                        ContentWindSpeedAndCloudiness(
-                            backgroundLayoutComposable,
-                            uiState,
-                            Modifier
+                        ItemContentWeatherCurrent(
+                            background = backgroundLayoutComposable,
+                            dataFirstLine = Triple(
+                                R.drawable.icon_veloc_vento,
+                                uiState.windSpeed,
+                                stringResource(R.string.uni_med_veloc_km_h)
+                            ),
+                            dataSecondLine = Triple(
+                                R.drawable.icon_nebulos,
+                                uiState.cloudsAll,
+                                stringResource(R.string.percent)
+                            ),
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(end = 6.dp)
+
                         )
                     }
                     Spacer(Modifier.height(16.dp))
@@ -317,128 +337,6 @@ private fun ContentDescriptionAndThermalSensation(
                         .wrapContentWidth()
                         .padding(end = 12.dp),
                     maxLines = 1,
-                    color = White
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ContentHumidityAndAtmosphericPressure(
-    backgroundLayoutComposable: Color, uiState: WeatherUiState, modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .padding(2.dp)
-            .border(
-                color = Color.LightGray, shape = ShapeDefaults.Small, width = 1.dp
-            )
-            .clip(RoundedCornerShape(3.dp))
-            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
-    ) {
-        Row(
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_pressao_atm),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(22.dp)
-                    .padding(end = 8.dp)
-            )
-            uiState.pressure?.let {
-                Text(
-                    text = "$it ${stringResource(R.string.uni_med_atm_press)}",
-                    fontFamily = openSansFontFamily,
-                    color = White
-                )
-            }
-        }
-
-        Row(
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_umidade),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(22.dp)
-                    .padding(end = 8.dp)
-            )
-            uiState.humidity?.let {
-                Text(
-                    text = "$it${stringResource(R.string.percent)}",
-                    fontFamily = openSansFontFamily,
-                    color = White
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ContentWindSpeedAndCloudiness(
-    backgroundLayoutComposable: Color, uiState: WeatherUiState, modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .padding(2.dp)
-            .border(
-                color = Color.LightGray, shape = ShapeDefaults.Small, width = 1.dp
-            )
-            .clip(RoundedCornerShape(3.dp))
-            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f))
-    ) {
-        Row(
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_veloc_vento),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(22.dp)
-                    .padding(end = 8.dp)
-            )
-            uiState.windSpeed?.let {
-                Text(
-                    text = "$it ${stringResource(R.string.uni_med_veloc_km_h)}",
-                    fontFamily = openSansFontFamily,
-                    color = White
-                )
-            }
-        }
-
-        Row(
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_nebulos),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(22.dp)
-                    .padding(end = 8.dp)
-            )
-            uiState.cloudsAll?.let {
-                Text(
-                    text = "$it${stringResource(R.string.percent)}",
-                    fontFamily = openSansFontFamily,
                     color = White
                 )
             }
@@ -659,16 +557,16 @@ private fun CreateRememberDatePicker() {
 
 @Composable
 private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
-    val selectedData = rememberSaveable { mutableStateOf("Todos") }
+    val selectedDate = rememberSaveable { mutableStateOf("Todos") }
     val showDialog = remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
         val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
         override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-            val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
+            val localDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
             val today = LocalDate.now(ZoneId.of(DateFormats.TIME_ZONE))
             val fiveDaysRange = today.plusDays(5)
-            return !selectedDate.isBefore(today) && !selectedDate.isAfter(fiveDaysRange)
+            return !localDate.isBefore(today) && !localDate.isAfter(fiveDaysRange)
         }
 
         override fun isSelectableYear(year: Int): Boolean {
@@ -678,7 +576,7 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
 
     LaunchedEffect(datePickerState.selectedDateMillis) {
         datePickerState.selectedDateMillis?.let {
-            selectedData.value = it.toFormattedDate()
+            selectedDate.value = it.toFormattedDate()
         }
     }
 
@@ -696,7 +594,7 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
                     .padding(end = 4.dp)
             )
             Text(
-                text = selectedData.value, color = Color.Black
+                text = selectedDate.value, color = Color.Black
             )
         }
     }
@@ -707,7 +605,7 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let {
                         viewModel.filterDayForecast("Todos")
-                        selectedData.value = "Todos"
+                        selectedDate.value = "Todos"
                     }
                     showDialog.value = false
                 }
@@ -716,7 +614,7 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
                 }
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let {
-                        viewModel.filterDayForecast(selectedData.value)
+                        viewModel.filterDayForecast(selectedDate.value)
                     }
                     showDialog.value = false
                 }) {
