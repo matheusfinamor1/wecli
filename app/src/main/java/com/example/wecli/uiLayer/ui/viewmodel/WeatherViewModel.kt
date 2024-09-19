@@ -32,8 +32,8 @@ class WeatherViewModel(
         viewModelScope.launch {
             getCombinedWeatherUseCase.invoke(lat, lon).collect {
                 if (_listFilterDays.value.forecastList?.size == 0) {
-                    _uiState.value = it.data!!
-                    _listFilterDays.value = it.data
+                    _uiState.value = it.data ?: WeatherUiState()
+                    _listFilterDays.value = it.data ?: WeatherUiState()
                 } else {
                     _listFilterDays.value = uiState.value.copy(
                         isLoading = false,

@@ -98,6 +98,4 @@ class LocationUserManager(
                     context, Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED)
     }
-
-
 }
