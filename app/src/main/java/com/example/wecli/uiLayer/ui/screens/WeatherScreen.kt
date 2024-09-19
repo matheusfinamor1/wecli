@@ -107,12 +107,11 @@ fun WeatherScreen(
         fusedLocationClient,
         onGetCurrentLocationSuccess = { latitude, longitude ->
             viewModel.getCombinedWeather(latitude, longitude)
-
         },
-        onGetCurrentLocationFailure = { exception ->
-            Log.e("Response", "WeatherScreen: $exception")
+        onGetCurrentLocationFailure = {
+
         })
-    ShowDialog(showPermissionRequest, context)
+    ShowPermissionAlertDialog(showPermissionRequest, context)
     ContentScreen(uiState, momentDay, viewModel, filteredForecastList)
 }
 
@@ -357,7 +356,9 @@ private fun DateContent(viewModel: WeatherViewModel) {
 }
 
 @Composable
-private fun ListForecastContent(filteredForecastList: WeatherUiState) {
+private fun ListForecastContent(
+    filteredForecastList: WeatherUiState
+) {
     LazyRow(
         modifier = Modifier
             .fillMaxSize()
@@ -371,7 +372,10 @@ private fun ListForecastContent(filteredForecastList: WeatherUiState) {
                 ItemLazyRow(
                     it,
                     index,
-                    onClick = { Log.d("Response", "Item ${it[index]} clicado") })
+                    onClick = {
+                        Log.d("Response", "Item ${it[index]} clicado")
+                    }
+                )
             }
             Spacer(modifier = Modifier.width(4.dp))
         }
@@ -558,7 +562,7 @@ private fun CreateRememberDatePicker() {
 @Composable
 private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
     val selectedDate = rememberSaveable { mutableStateOf("Todos") }
-    val showDialog = remember { mutableStateOf(false) }
+    val showDateDialog = remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
         val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
@@ -581,7 +585,7 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
     }
 
     Button(
-        onClick = { showDialog.value = true },
+        onClick = { showDateDialog.value = true },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -599,15 +603,17 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
         }
     }
 
-    if (showDialog.value) {
-        DatePickerDialog(onDismissRequest = { showDialog.value = false }, confirmButton = {
-            Row(modifier = Modifier.wrapContentWidth()) {
+    if (showDateDialog.value) {
+        DatePickerDialog(
+            shape = ShapeDefaults.ExtraLarge,
+            onDismissRequest = { showDateDialog.value = false },
+            confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let {
                         viewModel.filterDayForecast("Todos")
                         selectedDate.value = "Todos"
                     }
-                    showDialog.value = false
+                    showDateDialog.value = false
                 }
                 ) {
                     Text(text = stringResource(R.string.text_all_days), color = Color.Black)
@@ -616,21 +622,21 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
                     datePickerState.selectedDateMillis?.let {
                         viewModel.filterDayForecast(selectedDate.value)
                     }
-                    showDialog.value = false
+                    showDateDialog.value = false
                 }) {
                     Text(text = stringResource(R.string.text_confirm), color = Color.Black)
                 }
 
-            }
-
-        }, dismissButton = {
-            TextButton(onClick = { showDialog.value = false }) {
-                Text(text = stringResource(R.string.text_cancel), color = Color.Black)
-            }
-        },
+            },
+            dismissButton = {
+                TextButton(onClick = { showDateDialog.value = false }) {
+                    Text(text = stringResource(R.string.text_cancel), color = Color.Black)
+                }
+            },
             content = {
                 DatePicker(
-                    state = datePickerState, colors = colors(
+                    state = datePickerState,
+                    colors = colors(
                         titleContentColor = Color.Black,
                         todayContentColor = Color.DarkGray,
                         selectedDayContainerColor = Color.LightGray,
@@ -646,15 +652,15 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
                         ) {
                             Text(stringResource(R.string.text_select_data), fontSize = 18.sp)
                         }
-                    }
+                    },
                 )
-            }
+            },
         )
     }
 }
 
 @Composable
-private fun ShowDialog(
+private fun ShowPermissionAlertDialog(
     showPermissionRequest: MutableState<Boolean>, context: Context
 ) {
     if (showPermissionRequest.value) {
