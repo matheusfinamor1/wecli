@@ -31,6 +31,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults.colors
@@ -62,6 +63,7 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -101,6 +103,7 @@ fun WeatherScreen(
     val context = LocalContext.current
     val showPermissionRequest = remember { mutableStateOf(false) }
     val filteredForecastList: WeatherUiState by viewModel.listFilterDays.collectAsStateWithLifecycle()
+    var showDialogDetails = remember { mutableStateOf(false) }
 
     locationManager.RequestPermission(context,
         showPermissionRequest,
@@ -112,7 +115,37 @@ fun WeatherScreen(
 
         })
     ShowPermissionAlertDialog(showPermissionRequest, context)
-    ContentScreen(uiState, momentDay, viewModel, filteredForecastList)
+    ShowDialogDetails(showDialogDetails)
+    ContentScreen(uiState, momentDay, viewModel, filteredForecastList, showDialogDetails)
+}
+
+@Composable
+fun ShowDialogDetails(showDialogDetails: MutableState<Boolean>) {
+    if (showDialogDetails.value) {
+        Dialog(
+            onDismissRequest = { showDialogDetails.value = false },
+            content = {
+                Card(
+                    modifier = Modifier
+                        .fillMaxSize(0.9f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(color = Color.White)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text("Ola")
+                        }
+                    }
+                }
+
+            }
+        )
+    }
+
 }
 
 @Composable
@@ -120,7 +153,8 @@ private fun ContentScreen(
     uiState: WeatherUiState,
     momentDay: String,
     viewModel: WeatherViewModel,
-    filteredForecastList: WeatherUiState
+    filteredForecastList: WeatherUiState,
+    showDialogDetails: MutableState<Boolean>
 ) {
     val background = defineBackgroundColorForScreen(momentDay)
     val scrollStateScreen = rememberScrollState()
@@ -207,7 +241,7 @@ private fun ContentScreen(
                     Spacer(Modifier.height(16.dp))
                     DateContent(viewModel)
                     Spacer(Modifier.height(16.dp))
-                    ListForecastContent(filteredForecastList)
+                    ListForecastContent(filteredForecastList, showDialogDetails)
                 }
             }
         }
@@ -357,7 +391,8 @@ private fun DateContent(viewModel: WeatherViewModel) {
 
 @Composable
 private fun ListForecastContent(
-    filteredForecastList: WeatherUiState
+    filteredForecastList: WeatherUiState,
+    showDialogDetails: MutableState<Boolean>
 ) {
     LazyRow(
         modifier = Modifier
@@ -374,6 +409,7 @@ private fun ListForecastContent(
                     index,
                     onClick = {
                         Log.d("Response", "Item ${it[index]} clicado")
+                        showDialogDetails.value = true
                     }
                 )
             }
