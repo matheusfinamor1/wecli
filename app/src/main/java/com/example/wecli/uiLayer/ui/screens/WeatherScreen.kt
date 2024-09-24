@@ -103,7 +103,8 @@ fun WeatherScreen(
     val context = LocalContext.current
     val showPermissionRequest = remember { mutableStateOf(false) }
     val filteredForecastList: WeatherUiState by viewModel.listFilterDays.collectAsStateWithLifecycle()
-    var showDialogDetails = remember { mutableStateOf(false) }
+    val showDialogDetails = remember { mutableStateOf(false) }
+    val selectedItem = remember { mutableStateOf<ListForecastUiState?>(null) }
 
     locationManager.RequestPermission(context,
         showPermissionRequest,
@@ -114,13 +115,13 @@ fun WeatherScreen(
         onGetCurrentLocationFailure = {
 
         })
-    ShowPermissionAlertDialog(showPermissionRequest, context)
-    ShowDialogDetails(showDialogDetails)
-    ContentScreen(uiState, momentDay, viewModel, filteredForecastList, showDialogDetails)
+    PermissionAlertDialog(showPermissionRequest, context)
+    DialogDetails(showDialogDetails, selectedItem.value)
+    ContentScreen(uiState, momentDay, viewModel, filteredForecastList, showDialogDetails, selectedItem)
 }
 
 @Composable
-fun ShowDialogDetails(showDialogDetails: MutableState<Boolean>) {
+fun DialogDetails(showDialogDetails: MutableState<Boolean>, selectedItem: ListForecastUiState?) {
     if (showDialogDetails.value) {
         Dialog(
             onDismissRequest = { showDialogDetails.value = false },
@@ -134,18 +135,22 @@ fun ShowDialogDetails(showDialogDetails: MutableState<Boolean>) {
                         modifier = Modifier
                             .background(color = Color.White)
                     ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Text("Ola")
+                        selectedItem?.let { item ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp)
+                            ) {
+                                Text("${item.dataForecastUiState}")
+                            }
                         }
+
                     }
                 }
 
             }
         )
     }
-
 }
 
 @Composable
@@ -154,7 +159,8 @@ private fun ContentScreen(
     momentDay: String,
     viewModel: WeatherViewModel,
     filteredForecastList: WeatherUiState,
-    showDialogDetails: MutableState<Boolean>
+    showDialogDetails: MutableState<Boolean>,
+    selectedItem: MutableState<ListForecastUiState?>
 ) {
     val background = defineBackgroundColorForScreen(momentDay)
     val scrollStateScreen = rememberScrollState()
@@ -241,7 +247,7 @@ private fun ContentScreen(
                     Spacer(Modifier.height(16.dp))
                     DateContent(viewModel)
                     Spacer(Modifier.height(16.dp))
-                    ListForecastContent(filteredForecastList, showDialogDetails)
+                    ListForecastContent(filteredForecastList, showDialogDetails, selectedItem)
                 }
             }
         }
@@ -392,7 +398,8 @@ private fun DateContent(viewModel: WeatherViewModel) {
 @Composable
 private fun ListForecastContent(
     filteredForecastList: WeatherUiState,
-    showDialogDetails: MutableState<Boolean>
+    showDialogDetails: MutableState<Boolean>,
+    selectedItem: MutableState<ListForecastUiState?>
 ) {
     LazyRow(
         modifier = Modifier
@@ -407,10 +414,8 @@ private fun ListForecastContent(
                 ItemLazyRow(
                     it,
                     index,
-                    onClick = {
-                        Log.d("Response", "Item ${it[index]} clicado")
-                        showDialogDetails.value = true
-                    }
+                    showDialogDetails,
+                    selectedItem
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))
@@ -422,8 +427,8 @@ private fun ListForecastContent(
 private fun ItemLazyRow(
     it: List<ListForecastUiState>,
     index: Int,
-    onClick: () -> Unit
-
+    showDialogDetails: MutableState<Boolean>,
+    selectedItem: MutableState<ListForecastUiState?>
 ) {
     Column(
         modifier = Modifier
@@ -435,7 +440,11 @@ private fun ItemLazyRow(
             )
             .clip(RoundedCornerShape(8.dp))
             .padding(2.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = {
+                selectedItem.value = it[index]
+                showDialogDetails.value = true
+                Log.d("Response", "Item: ${it[index]}")
+            }),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -696,7 +705,7 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
 }
 
 @Composable
-private fun ShowPermissionAlertDialog(
+private fun PermissionAlertDialog(
     showPermissionRequest: MutableState<Boolean>, context: Context
 ) {
     if (showPermissionRequest.value) {
