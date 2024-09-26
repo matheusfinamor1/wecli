@@ -117,7 +117,14 @@ fun WeatherScreen(
         })
     PermissionAlertDialog(showPermissionRequest, context)
     DialogDetails(showDialogDetails, selectedItem.value)
-    ContentScreen(uiState, momentDay, viewModel, filteredForecastList, showDialogDetails, selectedItem)
+    ContentScreen(
+        uiState,
+        momentDay,
+        viewModel,
+        filteredForecastList,
+        showDialogDetails,
+        selectedItem
+    )
 }
 
 @Composable
@@ -128,7 +135,7 @@ fun DialogDetails(showDialogDetails: MutableState<Boolean>, selectedItem: ListFo
             content = {
                 Card(
                     modifier = Modifier
-                        .fillMaxSize(0.9f),
+                        .fillMaxSize(0.95f),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Box(
@@ -141,7 +148,56 @@ fun DialogDetails(showDialogDetails: MutableState<Boolean>, selectedItem: ListFo
                                     .fillMaxSize()
                                     .padding(8.dp)
                             ) {
-                                Text("${item.dataForecastUiState}")
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.TopCenter
+                                ) {
+                                    GlideImage(
+                                        modifier = Modifier.fillMaxSize(0.8f),
+                                        alignment = Alignment.TopCenter,
+                                        model = "${ApiEndpoint.BASE_ENDPOINT_IMAGE}${
+                                            item.weatherForecastUiState?.get(0)?.forecastWeatherIcon
+                                        }@4x.png",
+                                        contentDescription = null
+
+                                    )
+                                    Row(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .padding(
+                                                end = 112.dp,
+                                                top = 48.dp
+                                            )
+                                    ) {
+                                        Image(
+                                            modifier = Modifier.size(24.dp),
+                                            painter = painterResource(id = R.drawable.icon_thermometer_up),
+                                            contentDescription = null
+                                        )
+                                        Text(
+                                            text = "${item.mainForecastUiState?.forecastMainTempMax}",
+
+                                            )
+                                    }
+                                    Row(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .padding(
+                                                start = 124.dp,
+                                                top = 148.dp
+                                            )
+                                    ) {
+                                        Image(
+                                            modifier = Modifier.size(24.dp),
+                                            painter = painterResource(id = R.drawable.icon_thermometer_down),
+                                            contentDescription = null
+                                        )
+                                        Text(
+                                            text = "${item.mainForecastUiState?.forecastMainTempMin}",
+                                            modifier = Modifier
+                                        )
+                                    }
+                                }
                             }
                         }
 
