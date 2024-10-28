@@ -129,6 +129,7 @@ fun WeatherScreen(
 
 @Composable
 fun DialogDetails(showDialogDetails: MutableState<Boolean>, selectedItem: ListForecastUiState?) {
+    val scrollStateDetails = rememberScrollState()
     if (showDialogDetails.value) {
         Dialog(
             onDismissRequest = { showDialogDetails.value = false },
@@ -141,6 +142,7 @@ fun DialogDetails(showDialogDetails: MutableState<Boolean>, selectedItem: ListFo
                     Box(
                         modifier = Modifier
                             .background(color = Color.White)
+
                     ) {
                         selectedItem?.let { item ->
                             Column(
@@ -161,42 +163,29 @@ fun DialogDetails(showDialogDetails: MutableState<Boolean>, selectedItem: ListFo
                                         contentDescription = null
 
                                     )
-                                    Row(
+                                    DetailsTempMax(item)
+                                    DetailsTempMin(item)
+                                    Column(
                                         modifier = Modifier
-                                            .wrapContentWidth()
-                                            .padding(
-                                                end = 112.dp,
-                                                top = 48.dp
-                                            )
+                                            .fillMaxSize()
+                                            .padding(top = 204.dp)
+                                            .verticalScroll(scrollStateDetails),
                                     ) {
-                                        Image(
-                                            modifier = Modifier.size(24.dp),
-                                            painter = painterResource(id = R.drawable.icon_thermometer_up),
-                                            contentDescription = null
-                                        )
-                                        Text(
-                                            text = "${item.mainForecastUiState?.forecastMainTempMax}",
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        DetailsDataAndHour(item)
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        DetailsDescription(item)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        DetailsAtmosphericPressure(item)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        DetailsHumidity(item)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        DetailsCloudiness(item)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        DetailsWindSpeed(item)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                    }
 
-                                            )
-                                    }
-                                    Row(
-                                        modifier = Modifier
-                                            .wrapContentWidth()
-                                            .padding(
-                                                start = 124.dp,
-                                                top = 148.dp
-                                            )
-                                    ) {
-                                        Image(
-                                            modifier = Modifier.size(24.dp),
-                                            painter = painterResource(id = R.drawable.icon_thermometer_down),
-                                            contentDescription = null
-                                        )
-                                        Text(
-                                            text = "${item.mainForecastUiState?.forecastMainTempMin}",
-                                            modifier = Modifier
-                                        )
-                                    }
                                 }
                             }
                         }
@@ -205,6 +194,262 @@ fun DialogDetails(showDialogDetails: MutableState<Boolean>, selectedItem: ListFo
                 }
 
             }
+        )
+    }
+}
+
+@Composable
+private fun DetailsDataAndHour(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            modifier = Modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_calendar_foreground),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(18.dp)
+                    .padding(end = 4.dp),
+            )
+            Text(
+                text = item.dataForecastUiState.toString(),
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+
+        Row(
+            modifier = Modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_schedule),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(18.dp)
+                    .padding(end = 4.dp),
+            )
+            Text(
+                text = item.hourForecastUiState.toString(),
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailsWindSpeed(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    color = Color.LightGray,
+                    shape = ShapeDefaults.Small,
+                    width = 1.dp
+                )
+                .clip(RoundedCornerShape(14.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Velocidade do vento",
+                fontFamily = openSansFontFamily,
+                fontSize = 12.sp
+            )
+            Text(
+                text = "${item.windForecastUiState?.forecastWindSpeed} km/h",
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailsCloudiness(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    color = Color.LightGray,
+                    shape = ShapeDefaults.Small,
+                    width = 1.dp
+                )
+                .clip(RoundedCornerShape(14.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Nebulosidade",
+                fontFamily = openSansFontFamily,
+                fontSize = 12.sp
+            )
+            Text(
+                text = "${item.cloudsForecastUiState?.forecastCloudsAll} %",
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailsDescription(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    color = Color.LightGray,
+                    shape = ShapeDefaults.Small,
+                    width = 1.dp
+                )
+                .clip(RoundedCornerShape(14.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Descrição",
+                fontFamily = openSansFontFamily,
+                fontSize = 12.sp
+            )
+            Text(
+                text = "${item.weatherForecastUiState?.get(0)?.forecastWeatherDescription}",
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailsHumidity(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    color = Color.LightGray,
+                    shape = ShapeDefaults.Small,
+                    width = 1.dp
+                )
+                .clip(RoundedCornerShape(14.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Humidade do ar",
+                fontFamily = openSansFontFamily,
+                fontSize = 12.sp
+            )
+            Text(
+                text = "${item.mainForecastUiState?.forecastMainHumidity} %",
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailsAtmosphericPressure(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    color = Color.LightGray,
+                    shape = ShapeDefaults.Small,
+                    width = 1.dp
+                )
+                .clip(RoundedCornerShape(14.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Pressão atmosférica",
+                fontFamily = openSansFontFamily,
+                fontSize = 12.sp
+            )
+            Text(
+                text = "${item.mainForecastUiState?.forecastMainPressure} hPa",
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailsTempMin(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier
+            .wrapContentWidth()
+            .padding(
+                start = 132.dp,
+                top = 172.dp
+            )
+    ) {
+        Image(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = R.drawable.icon_thermometer_down),
+            contentDescription = null
+        )
+        Text(
+            text = "${item.mainForecastUiState?.forecastMainTempMin}",
+            fontFamily = openSansFontFamily,
+        )
+    }
+}
+
+@Composable
+private fun DetailsTempMax(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier
+            .wrapContentWidth()
+            .padding(
+                end = 112.dp,
+                top = 48.dp
+            )
+    ) {
+        Image(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = R.drawable.icon_thermometer_up),
+            contentDescription = null
+        )
+        Text(
+            text = "${item.mainForecastUiState?.forecastMainTempMax}",
+            fontFamily = openSansFontFamily,
         )
     }
 }
