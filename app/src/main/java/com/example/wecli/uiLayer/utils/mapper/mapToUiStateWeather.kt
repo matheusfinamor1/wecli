@@ -49,7 +49,6 @@ fun Pair<WeatherResponse?, ForecastResponse?>.asModel(): WeatherUiState {
             windForecastUiState = WindForecastUiState(
                 forecastWindSpeed = forecastWind.speed.toInt()
             ),
-            visibilityForecastUiState = forecastItem.visibility,
             podForecastUiState = forecastItem.sys.pod,
             dtTxtForecastUiState = forecastItem.dt_txt.formatDataAndHour(),
             dataForecastUiState = forecastItem.dt_txt.formatData(),
@@ -64,7 +63,7 @@ fun Pair<WeatherResponse?, ForecastResponse?>.asModel(): WeatherUiState {
         feelsLike = mainWeather?.feels_like?.toInt(),
         pressure = mainWeather?.pressure,
         humidity = mainWeather?.humidity,
-        visibility = weatherResource?.visibility,
+        //visibility = weatherResource?.visibility,
         windSpeed = ((wind?.speed ?: 0.0) * 3.6).toInt(),
         cloudsAll = clouds?.all,
         country = sys?.country,
