@@ -438,8 +438,8 @@ private fun DetailsTempMax(item: ListForecastUiState) {
         modifier = Modifier
             .wrapContentWidth()
             .padding(
-                end = 112.dp,
-                top = 48.dp
+                end = 138.dp,
+                top = 42.dp
             )
     ) {
         Image(
