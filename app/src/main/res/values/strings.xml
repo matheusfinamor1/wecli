@@ -15,4 +15,9 @@
     <string name="text_confirm">Confirmar</string>
     <string name="text_cancel">Cancelar</string>
     <string name="text_select_data">Selecione uma data para filtrar</string>
+    <string name="title_description">Descrição</string>
+    <string name="title_pressure_atmospheric">Pressão atmosférica</string>
+    <string name="title_air_humidity">Humidade do ar</string>
+    <string name="title_cloudiness">Nebulosidade</string>
+    <string name="title_wind_speed">Velocidade do vento</string>
 </resources>
