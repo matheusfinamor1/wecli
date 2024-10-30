@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -70,7 +69,10 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.wecli.R
 import com.example.wecli.domainLayer.core.LocationUserManager
+import com.example.wecli.uiLayer.ui.components.ItemContentForecastTempMaxAndMin
 import com.example.wecli.uiLayer.ui.components.ItemContentWeatherCurrent
+import com.example.wecli.uiLayer.ui.components.ItemDescriptionDetails
+import com.example.wecli.uiLayer.ui.components.ItemDetailsTempMinAndMax
 import com.example.wecli.uiLayer.ui.state.ListForecastUiState
 import com.example.wecli.uiLayer.ui.state.WeatherUiState
 import com.example.wecli.uiLayer.ui.theme.Blue
@@ -117,7 +119,7 @@ fun WeatherScreen(
         })
     PermissionAlertDialog(showPermissionRequest, context)
     DialogDetails(showDialogDetails, selectedItem.value)
-    ContentScreen(
+    ScreenContent(
         uiState,
         momentDay,
         viewModel,
@@ -128,334 +130,7 @@ fun WeatherScreen(
 }
 
 @Composable
-fun DialogDetails(showDialogDetails: MutableState<Boolean>, selectedItem: ListForecastUiState?) {
-    val scrollStateDetails = rememberScrollState()
-    if (showDialogDetails.value) {
-        Dialog(
-            onDismissRequest = { showDialogDetails.value = false },
-            content = {
-                Card(
-                    modifier = Modifier
-                        .fillMaxSize(0.95f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(color = Color.White)
-
-                    ) {
-                        selectedItem?.let { item ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.TopCenter
-                                ) {
-                                    GlideImage(
-                                        modifier = Modifier.fillMaxSize(0.8f),
-                                        alignment = Alignment.TopCenter,
-                                        model = "${ApiEndpoint.BASE_ENDPOINT_IMAGE}${
-                                            item.weatherForecastUiState?.get(0)?.forecastWeatherIcon
-                                        }@4x.png",
-                                        contentDescription = null
-
-                                    )
-                                    DetailsTempMax(item)
-                                    DetailsTempMin(item)
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(top = 204.dp)
-                                            .verticalScroll(scrollStateDetails),
-                                    ) {
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        DetailsDataAndHour(item)
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                        DetailsDescription(item)
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        DetailsAtmosphericPressure(item)
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        DetailsHumidity(item)
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        DetailsCloudiness(item)
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        DetailsWindSpeed(item)
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                    }
-
-                                }
-                            }
-                        }
-
-                    }
-                }
-
-            }
-        )
-    }
-}
-
-@Composable
-private fun DetailsDataAndHour(item: ListForecastUiState) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            modifier = Modifier.wrapContentWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_calendar_foreground),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(18.dp)
-                    .padding(end = 4.dp),
-            )
-            Text(
-                text = item.dataForecastUiState.toString(),
-                fontFamily = openSansFontFamily,
-                fontSize = 16.sp
-            )
-        }
-
-        Row(
-            modifier = Modifier.wrapContentWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_schedule),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(18.dp)
-                    .padding(end = 4.dp),
-            )
-            Text(
-                text = item.hourForecastUiState.toString(),
-                fontFamily = openSansFontFamily,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-@Composable
-private fun DetailsWindSpeed(item: ListForecastUiState) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(6.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    color = Color.LightGray,
-                    shape = ShapeDefaults.Small,
-                    width = 1.dp
-                )
-                .clip(RoundedCornerShape(14.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Velocidade do vento",
-                fontFamily = openSansFontFamily,
-                fontSize = 12.sp
-            )
-            Text(
-                text = "${item.windForecastUiState?.forecastWindSpeed} km/h",
-                fontFamily = openSansFontFamily,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-@Composable
-private fun DetailsCloudiness(item: ListForecastUiState) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(6.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    color = Color.LightGray,
-                    shape = ShapeDefaults.Small,
-                    width = 1.dp
-                )
-                .clip(RoundedCornerShape(14.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Nebulosidade",
-                fontFamily = openSansFontFamily,
-                fontSize = 12.sp
-            )
-            Text(
-                text = "${item.cloudsForecastUiState?.forecastCloudsAll} %",
-                fontFamily = openSansFontFamily,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-@Composable
-private fun DetailsDescription(item: ListForecastUiState) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(6.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    color = Color.LightGray,
-                    shape = ShapeDefaults.Small,
-                    width = 1.dp
-                )
-                .clip(RoundedCornerShape(14.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Descrição",
-                fontFamily = openSansFontFamily,
-                fontSize = 12.sp
-            )
-            Text(
-                text = "${item.weatherForecastUiState?.get(0)?.forecastWeatherDescription}",
-                fontFamily = openSansFontFamily,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-@Composable
-private fun DetailsHumidity(item: ListForecastUiState) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(6.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    color = Color.LightGray,
-                    shape = ShapeDefaults.Small,
-                    width = 1.dp
-                )
-                .clip(RoundedCornerShape(14.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Humidade do ar",
-                fontFamily = openSansFontFamily,
-                fontSize = 12.sp
-            )
-            Text(
-                text = "${item.mainForecastUiState?.forecastMainHumidity} %",
-                fontFamily = openSansFontFamily,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-@Composable
-private fun DetailsAtmosphericPressure(item: ListForecastUiState) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(6.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    color = Color.LightGray,
-                    shape = ShapeDefaults.Small,
-                    width = 1.dp
-                )
-                .clip(RoundedCornerShape(14.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Pressão atmosférica",
-                fontFamily = openSansFontFamily,
-                fontSize = 12.sp
-            )
-            Text(
-                text = "${item.mainForecastUiState?.forecastMainPressure} hPa",
-                fontFamily = openSansFontFamily,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-@Composable
-private fun DetailsTempMin(item: ListForecastUiState) {
-    Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .padding(
-                start = 132.dp,
-                top = 172.dp
-            )
-    ) {
-        Image(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = R.drawable.icon_thermometer_down),
-            contentDescription = null
-        )
-        Text(
-            text = "${item.mainForecastUiState?.forecastMainTempMin}",
-            fontFamily = openSansFontFamily,
-        )
-    }
-}
-
-@Composable
-private fun DetailsTempMax(item: ListForecastUiState) {
-    Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .padding(
-                end = 138.dp,
-                top = 42.dp
-            )
-    ) {
-        Image(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = R.drawable.icon_thermometer_up),
-            contentDescription = null
-        )
-        Text(
-            text = "${item.mainForecastUiState?.forecastMainTempMax}",
-            fontFamily = openSansFontFamily,
-        )
-    }
-}
-
-@Composable
-private fun ContentScreen(
+private fun ScreenContent(
     uiState: WeatherUiState,
     momentDay: String,
     viewModel: WeatherViewModel,
@@ -546,13 +221,14 @@ private fun ContentScreen(
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    DateContent(viewModel)
+                    ContentDate(viewModel)
                     Spacer(Modifier.height(16.dp))
-                    ListForecastContent(filteredForecastList, showDialogDetails, selectedItem)
+                    ContentListForecast(filteredForecastList, showDialogDetails, selectedItem)
                 }
             }
         }
     }
+
 }
 
 @Composable
@@ -602,7 +278,7 @@ private fun ContentTemp(
         uiState.let {
             it.temp?.let { temp ->
                 Text(
-                    text = "$temp",
+                    text = temp.toString(),
                     fontSize = 64.sp,
                     color = White,
                     fontFamily = openSansFontFamily
@@ -685,7 +361,7 @@ private fun ContentDescriptionAndThermalSensation(
 }
 
 @Composable
-private fun DateContent(viewModel: WeatherViewModel) {
+private fun ContentDate(viewModel: WeatherViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -697,7 +373,7 @@ private fun DateContent(viewModel: WeatherViewModel) {
 }
 
 @Composable
-private fun ListForecastContent(
+private fun ContentListForecast(
     filteredForecastList: WeatherUiState,
     showDialogDetails: MutableState<Boolean>,
     selectedItem: MutableState<ListForecastUiState?>
@@ -744,7 +420,6 @@ private fun ItemLazyRow(
             .clickable(onClick = {
                 selectedItem.value = it[index]
                 showDialogDetails.value = true
-                Log.d("Response", "Item: ${it[index]}")
             }),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -752,11 +427,11 @@ private fun ItemLazyRow(
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
-            DateForecastContent(it, index)
+            ContentForecastDate(it, index)
             Spacer(modifier = Modifier.width(6.dp))
-            HourForecastContent(it, index)
+            ContentTimeForecast(it, index)
         }
-        ForecastTempContent(it, index)
+        ContentTempForecast(it, index)
         Text(
             text = it[index].weatherForecastUiState?.get(0)?.forecastWeatherDescription.toString()
                 .replaceFirstChar {
@@ -769,7 +444,7 @@ private fun ItemLazyRow(
 }
 
 @Composable
-private fun DateForecastContent(
+private fun ContentForecastDate(
     it: List<ListForecastUiState>,
     index: Int
 ) {
@@ -796,7 +471,7 @@ private fun DateForecastContent(
 }
 
 @Composable
-private fun HourForecastContent(
+private fun ContentTimeForecast(
     it: List<ListForecastUiState>,
     index: Int
 ) {
@@ -824,13 +499,16 @@ private fun HourForecastContent(
 }
 
 @Composable
-private fun ForecastTempContent(
+private fun ContentTempForecast(
     it: List<ListForecastUiState>, index: Int
 ) {
     Row(
         modifier = Modifier.wrapContentSize()
     ) {
-        ContentForecastMaxTemp(it, index)
+        ItemContentForecastTempMaxAndMin(
+            temp = it[index].mainForecastUiState?.forecastMainTempMax.toString(),
+            image = painterResource(id = R.drawable.icon_thermometer_up)
+        )
         GlideImage(
             model = "${ApiEndpoint.BASE_ENDPOINT_IMAGE}${
                 it[index].weatherForecastUiState?.get(
@@ -838,71 +516,11 @@ private fun ForecastTempContent(
                 )?.forecastWeatherIcon
             }@2x.png", contentDescription = null
         )
-        ContentForecastMinTemp(it, index)
-    }
-}
-
-@Composable
-private fun ContentForecastMinTemp(
-    forecastList: List<ListForecastUiState>, index: Int
-) {
-    Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .padding(6.dp)
-    ) {
-        Image(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = R.drawable.icon_thermometer_down),
-            contentDescription = null
-        )
-        Text(
-            text = "${forecastList[index].mainForecastUiState?.forecastMainTempMin}",
-            fontFamily = openSansFontFamily,
-            color = White
+        ItemContentForecastTempMaxAndMin(
+            temp = it[index].mainForecastUiState?.forecastMainTempMin.toString(),
+            image = painterResource(id = R.drawable.icon_thermometer_down)
         )
     }
-}
-
-@Composable
-private fun ContentForecastMaxTemp(
-    forecastList: List<ListForecastUiState>, index: Int
-) {
-    Row(
-        modifier = Modifier
-            .wrapContentWidth()
-            .padding(6.dp)
-    ) {
-        Image(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = R.drawable.icon_thermometer_up),
-            contentDescription = null
-        )
-        Text(
-            text = "${forecastList[index].mainForecastUiState?.forecastMainTempMax}",
-            fontFamily = openSansFontFamily,
-            color = White
-        )
-    }
-}
-
-@Composable
-private fun CreateRememberDatePicker() {
-    rememberDatePickerState(selectableDates = object : SelectableDates {
-        val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
-        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-            val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
-            val currentDate = ZonedDateTime.now(zoneId)
-            val fiveDaysRange = currentDate.plusDays(5)
-            return selectedDate.isBefore(fiveDaysRange) && selectedDate.isAfter(
-                currentDate
-            )
-        }
-
-        override fun isSelectableYear(year: Int): Boolean {
-            return true
-        }
-    })
 }
 
 @Composable
@@ -1003,6 +621,183 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
             },
         )
     }
+}
+
+@Composable
+private fun DialogDetails(
+    showDialogDetails: MutableState<Boolean>,
+    selectedItem: ListForecastUiState?
+) {
+    val scrollStateDetails = rememberScrollState()
+    if (showDialogDetails.value) {
+        Dialog(
+            onDismissRequest = { showDialogDetails.value = false },
+            content = {
+                Card(
+                    modifier = Modifier
+                        .fillMaxSize(0.95f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(color = Color.White)
+
+                    ) {
+                        selectedItem?.let { item ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.TopCenter
+                                ) {
+                                    GlideImage(
+                                        modifier = Modifier.fillMaxSize(0.8f),
+                                        alignment = Alignment.TopCenter,
+                                        model = "${ApiEndpoint.BASE_ENDPOINT_IMAGE}${
+                                            item.weatherForecastUiState?.get(0)?.forecastWeatherIcon
+                                        }@4x.png",
+                                        contentDescription = null
+
+                                    )
+                                    ItemDetailsTempMinAndMax(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .padding(
+                                                end = 138.dp,
+                                                top = 46.dp
+                                            ),
+                                        item.mainForecastUiState?.forecastMainTempMax.toString(),
+                                        image = painterResource(id = R.drawable.icon_thermometer_up)
+                                    )
+                                    ItemDetailsTempMinAndMax(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .padding(
+                                                start = 132.dp,
+                                                top = 172.dp
+                                            ),
+                                        item.mainForecastUiState?.forecastMainTempMin.toString(),
+                                        image = painterResource(id = R.drawable.icon_thermometer_down)
+                                    )
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(top = 204.dp)
+                                            .verticalScroll(scrollStateDetails),
+                                    ) {
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        DetailsDataAndHour(item)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        ItemDescriptionDetails(
+                                            item = item.weatherForecastUiState?.get(0)?.forecastWeatherDescription.toString()
+                                                .replaceFirstChar { it.uppercase() },
+                                            titleDescriptionItem = stringResource(R.string.title_description)
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        ItemDescriptionDetails(
+                                            item = item.mainForecastUiState?.forecastMainPressure.toString(),
+                                            titleDescriptionItem = stringResource(R.string.title_pressure_atmospheric),
+                                            unitOfMeasurement = stringResource(R.string.uni_med_atm_press)
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        ItemDescriptionDetails(
+                                            item = item.mainForecastUiState?.forecastMainHumidity.toString(),
+                                            titleDescriptionItem = stringResource(R.string.title_air_humidity),
+                                            unitOfMeasurement = stringResource(R.string.percent)
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        ItemDescriptionDetails(
+                                            item = item.cloudsForecastUiState?.forecastCloudsAll.toString(),
+                                            titleDescriptionItem = stringResource(R.string.title_cloudiness),
+                                            unitOfMeasurement = stringResource(R.string.percent)
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        ItemDescriptionDetails(
+                                            item = item.windForecastUiState?.forecastWindSpeed.toString(),
+                                            titleDescriptionItem = stringResource(R.string.title_wind_speed),
+                                            unitOfMeasurement = stringResource(R.string.uni_med_veloc_km_h)
+                                        )
+                                    }
+
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        )
+    }
+}
+
+@Composable
+private fun DetailsDataAndHour(item: ListForecastUiState) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            modifier = Modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_calendar_foreground),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(18.dp)
+                    .padding(end = 4.dp),
+            )
+            Text(
+                text = item.dataForecastUiState.toString(),
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+
+        Row(
+            modifier = Modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_schedule),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(18.dp)
+                    .padding(end = 4.dp),
+            )
+            Text(
+                text = item.hourForecastUiState.toString(),
+                fontFamily = openSansFontFamily,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun CreateRememberDatePicker() {
+    rememberDatePickerState(selectableDates = object : SelectableDates {
+        val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
+        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+            val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
+            val currentDate = ZonedDateTime.now(zoneId)
+            val fiveDaysRange = currentDate.plusDays(5)
+            return selectedDate.isBefore(fiveDaysRange) && selectedDate.isAfter(
+                currentDate
+            )
+        }
+
+        override fun isSelectableYear(year: Int): Boolean {
+            return true
+        }
+    })
 }
 
 @Composable
