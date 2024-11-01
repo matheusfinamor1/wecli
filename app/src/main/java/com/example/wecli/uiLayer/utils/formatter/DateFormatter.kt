@@ -1,14 +1,15 @@
 package com.example.wecli.uiLayer.utils.formatter
 
-import com.example.wecli.uiLayer.utils.DateFormats
+import com.example.wecli.uiLayer.utils.Formats
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object DateFormatter {
-    private val origFormatter = DateTimeFormatter.ofPattern(DateFormats.FULL_DATE_TIME)
-    private val newFormatterDataAndHour = DateTimeFormatter.ofPattern(DateFormats.NEW_FORMAT_FULL_DATE_TIME)
-    private val newFormatterData = DateTimeFormatter.ofPattern(DateFormats.DATE_FORMAT)
-    private val newFormatterHour = DateTimeFormatter.ofPattern(DateFormats.HOUR_FORMAT)
+    private val origFormatter = DateTimeFormatter.ofPattern(Formats.FULL_DATE_TIME)
+    private val newFormatterDataAndHour =
+        DateTimeFormatter.ofPattern(Formats.NEW_FORMAT_FULL_DATE_TIME)
+    private val newFormatterData = DateTimeFormatter.ofPattern(Formats.DATE_FORMAT)
+    private val newFormatterHour = DateTimeFormatter.ofPattern(Formats.HOUR_FORMAT)
 
     fun String.formatDataAndHour(): String? {
         return try {
@@ -18,6 +19,7 @@ object DateFormatter {
             null
         }
     }
+
     fun String.formatData(): String? {
         return try {
             val dataObj = LocalDateTime.parse(this, origFormatter)
@@ -26,6 +28,7 @@ object DateFormatter {
             null
         }
     }
+
     fun String.formatHour(): String? {
         return try {
             val dataObj = LocalDateTime.parse(this, origFormatter)
