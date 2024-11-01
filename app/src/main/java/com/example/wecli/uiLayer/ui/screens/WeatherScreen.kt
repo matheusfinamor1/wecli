@@ -85,7 +85,7 @@ import com.example.wecli.uiLayer.ui.theme.White
 import com.example.wecli.uiLayer.ui.theme.openSansFontFamily
 import com.example.wecli.uiLayer.ui.viewmodel.WeatherViewModel
 import com.example.wecli.uiLayer.utils.ApiEndpoint
-import com.example.wecli.uiLayer.utils.DateFormats
+import com.example.wecli.uiLayer.utils.Formats
 import com.example.wecli.uiLayer.utils.formatter.toFormattedDate
 import com.google.android.gms.location.FusedLocationProviderClient
 import java.time.Instant
@@ -529,10 +529,10 @@ private fun DatePickerWithDialog(viewModel: WeatherViewModel) {
     val showDateDialog = remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
-        val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
+        val zoneId = TimeZone.getTimeZone(Formats.TIME_ZONE).toZoneId()
         override fun isSelectableDate(utcTimeMillis: Long): Boolean {
             val localDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId).toLocalDate()
-            val today = LocalDate.now(ZoneId.of(DateFormats.TIME_ZONE))
+            val today = LocalDate.now(ZoneId.of(Formats.TIME_ZONE))
             val fiveDaysRange = today.plusDays(5)
             return !localDate.isBefore(today) && !localDate.isAfter(fiveDaysRange)
         }
@@ -784,7 +784,7 @@ private fun DetailsDataAndHour(item: ListForecastUiState) {
 @Composable
 private fun CreateRememberDatePicker() {
     rememberDatePickerState(selectableDates = object : SelectableDates {
-        val zoneId = TimeZone.getTimeZone(DateFormats.TIME_ZONE).toZoneId()
+        val zoneId = TimeZone.getTimeZone(Formats.TIME_ZONE).toZoneId()
         override fun isSelectableDate(utcTimeMillis: Long): Boolean {
             val selectedDate = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
             val currentDate = ZonedDateTime.now(zoneId)
