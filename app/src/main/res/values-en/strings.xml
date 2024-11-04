@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wecli</string>
+    <string name="title_message_aut_location">Authorize location access</string>
+    <string name="message_aut_location">To make good use of the application, you must authorize the use of your device\'s location.</string>
+    <string name="message_go_config">Go to settings</string>
+    <string name="message_close">Close</string>
+    <string name="text_all">All</string>
+    <string name="text_all_days">Every day</string>
+    <string name="text_confirm">Confirm</string>
+    <string name="text_cancel">Cancel</string>
+    <string name="text_select_data">Select a date to filter</string>
+    <string name="title_description">Description</string>
+    <string name="title_pressure_atmospheric">Atmospheric pressure</string>
+    <string name="title_air_humidity">Air humidity</string>
+    <string name="title_cloudiness">Cloudiness</string>
+    <string name="title_wind_speed">Wind speed</string>
+</resources>

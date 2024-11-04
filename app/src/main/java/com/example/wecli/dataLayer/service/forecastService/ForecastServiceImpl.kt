@@ -6,7 +6,6 @@ import com.example.wecli.domainLayer.core.DeviceLanguage
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import org.koin.core.context.GlobalContext.get
 
 class ForecastServiceImpl(
     private val client: HttpClient,
