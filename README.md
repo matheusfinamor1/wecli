@@ -17,6 +17,8 @@ Wecli é um aplicativo Android que fornece informações precisas e detalhadas s
 - `Funcionalidade 3`: Filtrar o dia desejado para obter a previsão
 - ![gif3](https://github.com/user-attachments/assets/7d892494-f041-491f-9ab2-e3dc6df50f45)
 
+- `Funcionalidade 4`: Detalhes da previsão do tempo
+- ![gif-details-app](https://github.com/user-attachments/assets/048834fc-4325-4f7c-b92c-08a7022d15f1)
 
 ## 📁 Acesso ao projeto
 
