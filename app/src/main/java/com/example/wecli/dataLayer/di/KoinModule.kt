@@ -1,6 +1,5 @@
 package com.example.wecli.dataLayer.di
 
-import com.example.wecli.domainLayer.core.LocationUserManager
 import com.example.wecli.dataLayer.repository.forecastRepository.ForecastRepository
 import com.example.wecli.dataLayer.repository.forecastRepository.ForecastRepositoryImpl
 import com.example.wecli.dataLayer.repository.hourRepository.HourRepository
@@ -11,11 +10,13 @@ import com.example.wecli.dataLayer.service.forecastService.ForecastService
 import com.example.wecli.dataLayer.service.forecastService.ForecastServiceImpl
 import com.example.wecli.dataLayer.service.weatherCurrentService.WeatherService
 import com.example.wecli.dataLayer.service.weatherCurrentService.WeatherServiceImpl
-import com.example.wecli.uiLayer.ui.viewmodel.WeatherViewModel
+import com.example.wecli.domainLayer.core.DeviceLanguage
+import com.example.wecli.domainLayer.core.LocationUserManager
 import com.example.wecli.domainLayer.useCase.combinedWeatherUseCase.GetCombinedWeatherUseCase
 import com.example.wecli.domainLayer.useCase.forecastUseCase.GetForecastUseCase
 import com.example.wecli.domainLayer.useCase.momentDayUseCase.GetMomentDayUseCase
 import com.example.wecli.domainLayer.useCase.weatherUseCase.GetWeatherUserUseCase
+import com.example.wecli.uiLayer.ui.viewmodel.WeatherViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -26,6 +27,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.conscrypt.Conscrypt
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import javax.net.ssl.SSLContext
 
@@ -36,10 +38,11 @@ val appModules = module {
     single { GetWeatherUserUseCase(get()) }
     single { GetCombinedWeatherUseCase(get(), get()) }
     single { GetForecastUseCase(get()) }
-    single<WeatherService> { WeatherServiceImpl(get()) }
-    single<ForecastService> { ForecastServiceImpl(get()) }
+    single<WeatherService> { WeatherServiceImpl(get(), get()) }
+    single<ForecastService> { ForecastServiceImpl(get(), get()) }
     single<HourRepository> { HourRepositoryImpl() }
     single { LocationUserManager(get()) }
+    singleOf(::DeviceLanguage)
     viewModel { WeatherViewModel(get(), get()) }
 }
 
