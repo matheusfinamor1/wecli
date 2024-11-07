@@ -1,5 +1,8 @@
 package com.example.wecli.dataLayer.di
 
+import android.net.ConnectivityManager
+import com.example.wecli.dataLayer.connection.ConnectivityObserver
+import com.example.wecli.dataLayer.connection.NetworkConnectivityObserver
 import com.example.wecli.dataLayer.repository.forecastRepository.ForecastRepository
 import com.example.wecli.dataLayer.repository.forecastRepository.ForecastRepositoryImpl
 import com.example.wecli.dataLayer.repository.hourRepository.HourRepository
@@ -26,6 +29,7 @@ import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.conscrypt.Conscrypt
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -34,16 +38,24 @@ import javax.net.ssl.SSLContext
 val appModules = module {
     single<WeatherRepository> { WeatherRepositoryImpl(get()) }
     single<ForecastRepository> { ForecastRepositoryImpl(get()) }
+    single<WeatherService> { WeatherServiceImpl(get(), get()) }
+    single<ForecastService> { ForecastServiceImpl(get(), get()) }
+    single<HourRepository> { HourRepositoryImpl() }
+    single<ConnectivityObserver> { NetworkConnectivityObserver(get()) }
     single { GetMomentDayUseCase(get()) }
     single { GetWeatherUserUseCase(get()) }
     single { GetCombinedWeatherUseCase(get(), get()) }
     single { GetForecastUseCase(get()) }
-    single<WeatherService> { WeatherServiceImpl(get(), get()) }
-    single<ForecastService> { ForecastServiceImpl(get(), get()) }
-    single<HourRepository> { HourRepositoryImpl() }
     single { LocationUserManager(get()) }
     singleOf(::DeviceLanguage)
     viewModel { WeatherViewModel(get(), get()) }
+}
+
+val androidModule = module {
+    single {
+        androidContext().getSystemService(ConnectivityManager::class.java)
+                as ConnectivityManager
+    }
 }
 
 val networkModule = module {
