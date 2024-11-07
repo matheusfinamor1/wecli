@@ -15,4 +15,7 @@
     <string name="title_air_humidity">Air humidity</string>
     <string name="title_cloudiness">Cloudiness</string>
     <string name="title_wind_speed">Wind speed</string>
+    <string name="text_with_internet">With internet</string>
+    <string name="text_losing_connection">Losing connection</string>
+    <string name="text_lost_internet">Lost internet</string>
 </resources>

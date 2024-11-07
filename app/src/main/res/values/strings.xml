@@ -20,4 +20,7 @@
     <string name="title_air_humidity">Humidade do ar</string>
     <string name="title_cloudiness">Nebulosidade</string>
     <string name="title_wind_speed">Velocidade do vento</string>
+    <string name="text_with_internet">Com internet</string>
+    <string name="text_losing_connection">Perdendo conexão</string>
+    <string name="text_lost_internet">Sem internet</string>
 </resources>
