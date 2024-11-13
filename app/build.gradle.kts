@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wecli"
+    namespace = "com.matheusfinamor.wecli"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.wecli"
+        applicationId = "com.matheusfinamor.wecli"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
