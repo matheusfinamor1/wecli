@@ -1,7 +1,6 @@
 package com.matheusfinamor.wecli.uiLayer.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +23,6 @@ import com.matheusfinamor.wecli.uiLayer.ui.theme.openSansFontFamily
 
 @Composable
 fun ItemContentWeatherCurrent(
-    background: Color,
     dataFirstLine: Triple<Int?, Int?, String?>,
     dataSecondLine: Triple<Int?, Int?, String?>,
     modifier: Modifier = Modifier
@@ -40,7 +38,6 @@ fun ItemContentWeatherCurrent(
                 color = Color.LightGray, shape = ShapeDefaults.Small, width = 1.dp
             )
             .clip(RoundedCornerShape(3.dp))
-            .background(color = background.copy(alpha = 0.2f))
     ) {
         Row(
             modifier = Modifier

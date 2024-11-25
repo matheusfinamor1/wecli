@@ -52,7 +52,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -67,6 +66,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.matheusfinamor.wecli.R
 import com.matheusfinamor.wecli.domainLayer.core.LocationUserManager
 import com.matheusfinamor.wecli.uiLayer.ui.components.ItemContentForecastTempMaxAndMin
@@ -75,19 +75,12 @@ import com.matheusfinamor.wecli.uiLayer.ui.components.ItemDescriptionDetails
 import com.matheusfinamor.wecli.uiLayer.ui.components.ItemDetailsTempMinAndMax
 import com.matheusfinamor.wecli.uiLayer.ui.state.ListForecastUiState
 import com.matheusfinamor.wecli.uiLayer.ui.state.WeatherUiState
-import com.matheusfinamor.wecli.uiLayer.ui.theme.Blue
-import com.matheusfinamor.wecli.uiLayer.ui.theme.BlueNight
-import com.matheusfinamor.wecli.uiLayer.ui.theme.BlueNightToWhiteGradient
-import com.matheusfinamor.wecli.uiLayer.ui.theme.BlueToWhiteGradient
-import com.matheusfinamor.wecli.uiLayer.ui.theme.BrownAfternoon
-import com.matheusfinamor.wecli.uiLayer.ui.theme.BrownToWhiteGradient
 import com.matheusfinamor.wecli.uiLayer.ui.theme.White
 import com.matheusfinamor.wecli.uiLayer.ui.theme.openSansFontFamily
 import com.matheusfinamor.wecli.uiLayer.ui.viewmodel.WeatherViewModel
 import com.matheusfinamor.wecli.uiLayer.utils.ApiEndpoint
 import com.matheusfinamor.wecli.uiLayer.utils.Formats
 import com.matheusfinamor.wecli.uiLayer.utils.formatter.toFormattedDate
-import com.google.android.gms.location.FusedLocationProviderClient
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -138,7 +131,6 @@ private fun ScreenContent(
     showDialogDetails: MutableState<Boolean>,
     selectedItem: MutableState<ListForecastUiState?>
 ) {
-    val background = defineBackgroundColorForScreen(momentDay)
     val scrollStateScreen = rememberScrollState()
     CreateRememberDatePicker()
     when (uiState.isLoading) {
@@ -146,7 +138,6 @@ private fun ScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(brush = background)
                     .verticalScroll(scrollStateScreen),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -157,17 +148,13 @@ private fun ScreenContent(
         }
 
         false -> {
-            val backgroundLayoutComposable: Color =
-                defineBackgroundColorForLayoutComposable(background)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(brush = background)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(brush = background)
                         .verticalScroll(scrollStateScreen),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -178,7 +165,7 @@ private fun ScreenContent(
                     Spacer(Modifier.height(16.dp))
                     ContentTemp(uiState)
                     Spacer(Modifier.height(16.dp))
-                    ContentDescriptionAndThermalSensation(uiState, backgroundLayoutComposable)
+                    ContentDescriptionAndThermalSensation(uiState)
                     Spacer(Modifier.height(32.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -186,7 +173,6 @@ private fun ScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         ItemContentWeatherCurrent(
-                            background = backgroundLayoutComposable,
                             dataFirstLine = Triple(
                                 R.drawable.icon_pressao_atm,
                                 uiState.pressure,
@@ -203,7 +189,6 @@ private fun ScreenContent(
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         ItemContentWeatherCurrent(
-                            background = backgroundLayoutComposable,
                             dataFirstLine = Triple(
                                 R.drawable.icon_veloc_vento,
                                 uiState.windSpeed,
@@ -300,15 +285,14 @@ private fun ContentTemp(
 
 @Composable
 private fun ContentDescriptionAndThermalSensation(
-    uiState: WeatherUiState, backgroundLayoutComposable: Color
+    uiState: WeatherUiState
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .border(color = Color.LightGray, shape = ShapeDefaults.Small, width = 1.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(color = backgroundLayoutComposable.copy(alpha = 0.2f)),
+            .clip(RoundedCornerShape(14.dp)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -838,33 +822,4 @@ private fun PermissionAlertDialog(
             }
         })
     }
-}
-
-@Composable
-private fun defineBackgroundColorForScreen(momentDay: String): Brush {
-    val background = when (momentDay) {
-        stringResource(R.string.periodic_day_morning) -> {
-            BlueToWhiteGradient
-        }
-
-        stringResource(R.string.periodic_day_afternoon) -> {
-            BrownToWhiteGradient
-        }
-
-        else -> {
-            BlueNightToWhiteGradient
-        }
-
-    }
-    return background
-}
-
-@Composable
-private fun defineBackgroundColorForLayoutComposable(background: Brush): Color {
-    val backgroundLayoutComposable: Color = when (background) {
-        BlueToWhiteGradient -> Blue
-        BrownToWhiteGradient -> BrownAfternoon
-        else -> BlueNight
-    }
-    return backgroundLayoutComposable
 }
