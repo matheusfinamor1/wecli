@@ -116,7 +116,6 @@ class MainActivity : ComponentActivity() {
                                     fusedLocationClient = fusedLocationClient,
                                     viewModel = viewModel,
                                     uiState = uiState,
-                                    momentDay = momentDay,
                                     locationManager = locationManager
                                 )
                             }
