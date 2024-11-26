@@ -92,7 +92,6 @@ fun WeatherScreen(
     fusedLocationClient: FusedLocationProviderClient,
     viewModel: WeatherViewModel,
     uiState: WeatherUiState,
-    momentDay: String,
     locationManager: LocationUserManager
 ) {
     val context = LocalContext.current
@@ -107,14 +106,11 @@ fun WeatherScreen(
         onGetCurrentLocationSuccess = { latitude, longitude ->
             viewModel.getCombinedWeather(latitude, longitude)
         },
-        onGetCurrentLocationFailure = {
-
-        })
+        onGetCurrentLocationFailure = {})
     PermissionAlertDialog(showPermissionRequest, context)
     DialogDetails(showDialogDetails, selectedItem.value)
     ScreenContent(
         uiState,
-        momentDay,
         viewModel,
         filteredForecastList,
         showDialogDetails,
@@ -125,7 +121,6 @@ fun WeatherScreen(
 @Composable
 private fun ScreenContent(
     uiState: WeatherUiState,
-    momentDay: String,
     viewModel: WeatherViewModel,
     filteredForecastList: WeatherUiState,
     showDialogDetails: MutableState<Boolean>,
@@ -156,17 +151,14 @@ private fun ScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(scrollStateScreen),
-                    verticalArrangement = Arrangement.Top,
+                    verticalArrangement = Arrangement.SpaceAround,
                     horizontalAlignment = Alignment.CenterHorizontally
 
                 ) {
                     Spacer(Modifier.height(32.dp))
                     ContentLocation(uiState)
-                    Spacer(Modifier.height(16.dp))
                     ContentTemp(uiState)
-                    Spacer(Modifier.height(16.dp))
                     ContentDescriptionAndThermalSensation(uiState)
-                    Spacer(Modifier.height(32.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -205,9 +197,7 @@ private fun ScreenContent(
 
                         )
                     }
-                    Spacer(Modifier.height(16.dp))
                     ContentDate(viewModel)
-                    Spacer(Modifier.height(16.dp))
                     ContentListForecast(filteredForecastList, showDialogDetails, selectedItem)
                 }
             }
